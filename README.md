@@ -1,2 +1,3 @@
 # network_program  
-ああああああ
+## network.h  
+ネットワーク系のプログラムをまとめたライブラリ  
