@@ -1,3 +1,2 @@
-# network_program  
-## network.h  
+### network.h  
 ネットワーク系のプログラムをまとめたライブラリ  
