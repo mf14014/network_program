@@ -1,4 +1,6 @@
-﻿/* !ATTENTION! : This program run only on and over C99. */
+﻿//テスト
+
+/* !ATTENTION! : This program run only on and over C99. */
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
