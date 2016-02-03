@@ -138,11 +138,6 @@ void tr_func(void){	//個々に特性を割り当てる
 		
 		for(j=0;j<fe;j++){
 			ag[i].f[j] = (int)genrand_int31() % tr;	//[0,tr-1]までの間で乱数を取る
-			/*
-			while(ag[i].f[j] < 0){
-				ag[i].f[j] = (int)genrand_real2()*10000 % tr;
-			}*/
-			
 		}
 	}
 }
@@ -220,7 +215,6 @@ void dfs2(int v){
 	for(i=0;i<ag_num;i++){
 		if(cd_nw[v][i] == 1){
 			max_size_network[v][i] = 1;
-			//max_size_network[i][v] = 1;	//多分なくても正常動作する
 			
 			if(node_through_list[i] == 0){
 				dfs2(i);
@@ -255,15 +249,10 @@ int network_island_count(void){
 			
 			dummy = af_node_through_list_number;
 			
-			//printf("%d\n",dfs(i));
-			
 			if(dummy > node_list_of_network[1]){	//最も大きい島だけを記録する
 				node_list_of_network[0] = count;	//何回目のdfs1には，
 				node_list_of_network[1] = dummy;	//いくつのノードが集まっているか
-				
-				//printf("test1\n");
 			}
-			//printf("test2\n");
 			
 			count++;
 		}
@@ -287,12 +276,10 @@ int culture_count_function(void){	//文化の種類を数える関数
 		}
 		else{
 			for(m=0;m<j;m++){
-				//printf("KD=%d\n",KD_func(kinds_of_culture_list[m].f, ag[i].f));
 				if(KD_func(kinds_of_culture_list[m].f, ag[i].f) != fe){
 					count++;	//このcountは2つのfor文の中にあることに注意する
 				}
 			}
-			//printf("j=%d,m=%d,test\n",j,m);
 			if(count==j){	//kinds_of_culture_listに含まれない文化ag[i]ならば
 				if((kinds_of_culture_list = (agent *)realloc(kinds_of_culture_list,sizeof(agent)*(j+1))) == NULL){
 					printf("realloc時にメモリが確保できません\n");
@@ -307,12 +294,10 @@ int culture_count_function(void){	//文化の種類を数える関数
 				}
 				j++;
 			}
-			//printf("test\n");
 			
 			count = 0;
 		}
 	}
-	//printf("test_end\n");	//ここまで行き着かない
 	
 	free(kinds_of_culture_list);
 	
@@ -332,8 +317,6 @@ void max_size_network_func(void){
 	for(i=0;i<ag_num;i++){
 		if(node_through_list[i] == 0){
 			if(node_list_of_network[0] == count){
-				//printf("node_list_of_network[0] = %d\n",node_list_of_network[0]);
-				//printf("test3\n");
 				dfs2(i);	//深さ優先探索関数(最も大きな連結グラフも同時作成)
 			}
 			else dfs1(i);	//深さ優先探索関数
@@ -351,46 +334,28 @@ void orgnl_mdl(void){
 	double a;
 	int b;
 	
-	//printf("debag_lineA\n");
-	
 	while(n==0){	//孤独なエージェント(隣接ノードが0)は除いて乱数を取る
 		x = (int)(genrand_real1()*(double)(ag_num-1 -0 +1)/(double)ag_num);	//活性化させるagentをランダムに選出
 	
 		for(i=0;i<ag_num;i++){
 			if(cd_nw[x][i] == 1){
-				//printf("test by Centola_AA\n");
 				n = n+1;
 			}
 		}
 	}
 	
-	//printf("debag_lineB\n");
-	
 	nb_lst = (int *)malloc(sizeof(int) * n);	//nb_lst: neighbor agent listの略
-	
-	//printf("debag_lineC\n");
 	
 	for(i=0;i<ag_num;i++){
 		if(cd_nw[x][i] == 1){
 			nb_lst[m] = i;	//nb_lstはagent xの隣接ノードリスト
-			
 			m++;
 		}
 	}
 	
-	//printf("debag_lineD\n");
-	
 	y = (int)genrand_int31() % n;	// 0割に注意
 	
-	//printf("debag_lineE\n");
-	
 	if((0 < KD_func(ag[x].f, ag[ nb_lst[y] ].f)) && (KD_func(ag[x].f, ag[ nb_lst[y] ].f) < fe)){	//相互作用対象が全て自分と同じ文化を持っていた場合何もせずに終わる
-		//printf("test by olgmdl_mdl_A\n");
-		
-		
-		//printf("%d\n",x);
-		
-		
 		//共有していない文化をランダムに選ぶ
 		b = (int)genrand_int31()%fe;
 		
@@ -412,12 +377,7 @@ void orgnl_mdl(void){
 			a = (double)KD_func(ag[x].f, ag[ nb_lst[y] ].f)/(double)fe;	//確率O(i,j)/Fを計算
 		}
 		
-		//printf("%f/%f=%f\n",(double)KD_func(ag[x].f, ag[ nb_lst[y] ].f),(double)fe,a);
-		//printf("test by Centola_mdl_B\n");
-		
 		if(a >= genrand_real1()){	//文化類似度による確率が成功した場合
-			//printf("test by Centola_mdl_C\n")
-			
 			ag[x].f[b] = ag[ nb_lst[y] ].f[b];
 		}
 	}
@@ -455,7 +415,6 @@ double a_rate_of_bridge_func(void){
 			}
 		}
 	}
-	//printf("link -> %d\n",all_link_count);
 	
 	return a_rate_of_bridge/(double)all_link_count;
 }
@@ -568,7 +527,6 @@ double average_vertex_distance(void){	//平均頂点間距離を計算するプ�
 			}
 		}
 	}
-	//printf("count->%d, sum->%d\n",count,sum);
 	
 	av_dis = 2.0/(node_list_of_network[1]*(node_list_of_network[1]-1) ) * sum;
 	
@@ -625,8 +583,7 @@ double average_cluster_calculate_func(void){
 	//"average = sum / ag_num"ではなぜかエラーが起きた
 	dummy = ag_num;
 	average = sum / dummy;
-	//sleep(1);
-	//printf("average = %f\n",average);
+	
 	return average;
 }
 
@@ -641,8 +598,6 @@ void read_data_set_func(char *filename, double *cooperation_parameter, double *i
 	}
 	else{
 		while(fscanf( fp, "%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf",  cooperation_parameter, island_number_av_array, agent_number_av_array, culture_number_av_array, cluster_number_av_array, shortest_path_av_array, bridge_number_av_array, island_number_variance_array, agent_number_variance_array, culture_number_variance_array, cluster_number_variance_array, shortest_path_variance_array, bridge_number_variance_array, island_number_standard_deviation_array,  agent_number_standard_deviation_array, culture_number_standard_deviation_array, cluster_number_standard_deviation_array, shortest_path_standard_deviation_array, bridge_number_standard_deviation_array) != EOF ){
-			//printf("共同性：%f\n",*cooperation_parameter);
-			
 			cooperation_parameter++;
 			island_number_av_array++;
 			agent_number_av_array++;
@@ -666,33 +621,11 @@ void read_data_set_func(char *filename, double *cooperation_parameter, double *i
 	}
 	fclose( fp );
 }
-/* 配列バージョン */
-/*
-//共同性に関するdata setを読み込む
-void read_data_set_func(char *filename, double cooperation_parameter[], double island_number_av_array[], double agent_number_av_array[], double culture_number_av_array[], double cluster_number_av_array[], double shortest_path_av_array[], double bridge_number_av_array[], double island_number_variance_array[], double agent_number_variance_array[], double culture_number_variance_array[], double cluster_number_variance_array[], double shortest_path_variance_array[], double bridge_number_variance_array[], double island_number_standard_deviation_array[],  double agent_number_standard_deviation_array[], double culture_number_standard_deviation_array[], double cluster_number_standard_deviation_array[], double shortest_path_standard_deviation_array[], double bridge_number_standard_deviation_array[]){
-	FILE *fp;
-	int index = 0;
-	
-	fp = fopen( filename, "r" );
-	if( fp == NULL ){
-		printf( "%sファイルが開けません\n", filename );
-		exit(1);
-	}
-	else{		
-		while(fscanf( fp, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",   &cooperation_parameter[index],  &island_number_av_array[index],  &agent_number_av_array[index],  &culture_number_av_array[index],  &cluster_number_av_array[index],  &shortest_path_av_array[index],  &bridge_number_av_array[index],  &island_number_variance_array[index],  &agent_number_variance_array[index],  &culture_number_variance_array[index],  &cluster_number_variance_array[index],  &shortest_path_variance_array[index],  &bridge_number_variance_array[index],  &island_number_standard_deviation_array[index],   &agent_number_standard_deviation_array[index],  &culture_number_standard_deviation_array[index],  &cluster_number_standard_deviation_array[index],  &shortest_path_standard_deviation_array[index],  &bridge_number_standard_deviation_array[index]) != EOF ){
-			printf("共同性：%f\n",cooperation_parameter[index]);
-			index++;
-		}
-	}
-	fclose( fp );
-}*/
- 
+
 int cooperation_parameter_return_index(double *cooperation_parameter){
 	int i;
 	
 	for(i=0;i<data_set_row;i++){
-		//printf("%f\n",cooperation_parameter[data_set_row]);
-		
 		if(cooperation_parameter[i] == conservativeness_parameter){
 			return i;
 		}
@@ -803,8 +736,6 @@ int main(void){
 		}
 		
 		while(t<=tmax){
-			//printf("%d event\n",t);
-			
 			for(k=0;k<wt_num;k++){
 				if(wt[k] == t){
 					for(i=0;i<ag_num;i++){	//書き込む前にolapを正しく計算する
@@ -862,13 +793,6 @@ int main(void){
 						fprintf(fp,"</graph>\n");
 						fprintf(fp,"</gexf>\n");
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ファイルの書込みに失敗しました.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
 						/* ファイルクローズ */
 						fclose(fp);
 						/*----------------------------------------------------*/
@@ -898,7 +822,6 @@ int main(void){
 						
 						for(i=0;i<ag_num;i++){
 							fprintf(fp,"%d \"agent_%d\" \n",i,i);
-							//fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",ag[i].f[0]*rgb_conversion,ag[i].f[1]*rgb_conversion,ag[i].f[2]*rgb_conversion);
 						}
 						
 						fprintf(fp,"*Arcs \n");
@@ -911,13 +834,6 @@ int main(void){
 							}
 						}
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ファイルの書込みに失敗しました.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
 						/* ファイルクローズ */
 						fclose(fp);
 						/*----------------------------------------------------*/
@@ -968,13 +884,6 @@ int main(void){
 						fprintf(fp,"</graph>\n");
 						fprintf(fp,"</gexf>\n");
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ファイルの書込みに失敗しました.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
 						/* ファイルクローズ */
 						fclose(fp);
 						/*----------------------------------------------------*/
@@ -1017,13 +926,6 @@ int main(void){
 							}
 						}
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ファイルの書込みに失敗しました.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
 						/* ファイルクローズ */
 						fclose(fp);
 						/*----------------------------------------------------*/
@@ -1213,7 +1115,7 @@ int main(void){
 	fclose(fp);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-		//文化の流布が成功したのか文化リストを作成して確認する
+	//文化の流布が成功したのか文化リストを作成して確認する
 	/* ファイルオープン */
 	if ((fp = fopen(filename1, "w")) == NULL) {
 		fprintf(stderr, "ファイルのオープンに失敗しました．\n");
@@ -1229,9 +1131,6 @@ int main(void){
 	fprintf(fp,"ブリッジ数(%%) = %f \n",a_rate_of_bridge_func()*100);
 	
 	fclose(fp);
-	
-	//printf("%d\n",node_list_of_network[0]);
-	//printf("%d\n",node_list_of_network[1]);
 	
 	return 0;
 }
