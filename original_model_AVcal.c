@@ -1,9 +1,3 @@
-﻿/* プログラミングメモ：
-・original_modelAVcal1_3からの変更点
-	【拡張】格子モデルをトーラスにする関数の作成
-*/
-
-
 /* ヘッダーファイル */
 #include <stdio.h>
 #include <stdlib.h>
