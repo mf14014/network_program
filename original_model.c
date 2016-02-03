@@ -1,9 +1,3 @@
-/* プログラミングメモ：
-original_model-6aからの変更点
-	sociariumファイル（アニメーション）を生成するプログラムの実装
-*/
-
-
 /* ヘッダーファイル */
 #include <stdio.h>
 #include <stdlib.h>
