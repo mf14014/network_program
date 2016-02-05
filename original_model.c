@@ -1,156 +1,145 @@
-/* ƒvƒƒOƒ‰ƒ~ƒ“ƒOƒƒ‚F
-original_model-6a‚©‚ç‚Ì•ÏX“_
-	sociariumƒtƒ@ƒCƒ‹iƒAƒjƒ[ƒVƒ‡ƒ“j‚ğ¶¬‚·‚éƒvƒƒOƒ‰ƒ€‚ÌÀ‘•
-*/
-
-
-/* ƒwƒbƒ_[ƒtƒ@ƒCƒ‹ */
+ï»¿/* ãƒ˜ãƒƒãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ« */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
 #include "MT.h"
 
-/* ƒvƒŠƒvƒƒZƒbƒT */
-#define lg 20	//Šiq‚Ìc‚Ü‚½‚Í‰¡‚Ì’·‚³D
-#define fe 3	//featuresD“Á’¥‚Ì”
-#define tr 20	//traitsD“Á«‚Ì”ÍˆÍ
-#define ag_num lg*lg	//agent”;
-#define tmax 500000	//ƒCƒxƒ“ƒg”
-#define wt_num 4	//‘‚«o‚·ƒtƒ@ƒCƒ‹‚Ì”
-#define rgb_conversion 255/tr	//agent‚Érgb‚Å’l‚ğ‰Á‚¦‚é
-#define make_torus 0	//Šiqƒ‚ƒfƒ‹‚ğƒg[ƒ‰ƒX‚É‚·‚éê‡‚Í1‚É‚·‚é(‚µ‚È‚¢ê‡‚Í0)
-#define conservativeness_parameter 0.99	//•Ûç«ƒpƒ‰ƒ[ƒ^(0ˆÈã1ˆÈ‰º‚Å”š‚ğ‘I‚Ô) ->0(•Ûç«‚ğ‚½‚È‚¢ó‘Ô)‚ğ‘I‚Ô‚ÆCentolaƒ‚ƒfƒ‹‚É‚È‚é
-#define read_data_set 1	//data_set‚ğ“Ç‚İ‚İdata set‚Ì‚ ‚é‹¤“¯«‚É‘Î‚·‚é‘®«’l(colum)‚Ì•½‹Ï‚É‹ß‚¢ƒOƒ‰ƒt‚ğ¶¬‚·‚éi“Ç‚İ‚Ü‚È‚¢ê‡‚Í0j
-	#define data_set_row 100	//data set‚Ì‹¤“¯«‚Ì0‚©‚ç1‚Ü‚Å‚Ì‚İ‚ÌŒÂ”
-	#define sigma_option 1	//ƒOƒ‰ƒt¶¬‚É‚¨‚¯‚éğŒ”ÍˆÍ •W€•Î·(sigma)‚ª1->68.27%C2->95.45%C3->99.73%
-	#define SimulationStop 100	//ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‰ñ”D‚±‚Ì‰ñ”‚ğ’´‚¦‚½ê‡‹­§I—¹‚µ‚Ü‚·D
-#define sociarium_ptch_width 5000	//sociarium‚ÌƒOƒ‰ƒt‚ğƒAƒjƒ[ƒVƒ‡ƒ“‚É‚·‚éÛCŠÔ²‚ğ‰½’PˆÊ‚Åi‚ß‚Ä‚¢‚«‚½‚¢‚©
+/* ãƒ—ãƒªãƒ—ãƒ­ã‚»ãƒƒã‚µ */
+#define TRUE 1
+#define FALSE 0
+#define latticeSideSize 20	//æ ¼å­ã®ç¸¦ã¾ãŸã¯æ¨ªã®é•·ã•ï¼
+#define features 3	//featuresï¼ç‰¹å¾´ã®æ•°
+#define traits 20	//traitsï¼ç‰¹æ€§ã®ç¯„å›²
+#define agents latticeSideSize*latticeSideSize	//agentæ•°;
+#define eventMax 500000	//ã‚¤ãƒ™ãƒ³ãƒˆæ•°
+#define writeOutFileNumber 4	//æ›¸ãå‡ºã™ãƒ•ã‚¡ã‚¤ãƒ«ã®æ•°
+#define convertCultureToRgb 255/traits	//agentã«rgbã§å€¤ã‚’åŠ ãˆã‚‹
+#define latticeToTorus FALSE	//æ ¼å­ãƒ¢ãƒ‡ãƒ«ã‚’ãƒˆãƒ¼ãƒ©ã‚¹ã«ã™ã‚‹å ´åˆã¯1ã«ã™ã‚‹(ã—ãªã„å ´åˆã¯0)
+#define cooperativityParameter 0.95	//ä¿å®ˆæ€§ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿(0ä»¥ä¸Š1ä»¥ä¸‹ã§æ•°å­—ã‚’é¸ã¶) ->0(ä¿å®ˆæ€§ã‚’æŒãŸãªã„çŠ¶æ…‹)ã‚’é¸ã¶ã¨Centolaãƒ¢ãƒ‡ãƒ«ã«ãªã‚‹
+#define readDataSet TRUE	//data_setã‚’èª­ã¿è¾¼ã¿data setã®ã‚ã‚‹å…±åŒæ€§ã«å¯¾ã™ã‚‹å±æ€§å€¤(colum)ã®å¹³å‡ã«è¿‘ã„ã‚°ãƒ©ãƒ•ã‚’ç”Ÿæˆã™ã‚‹ï¼ˆèª­ã¿è¾¼ã¾ãªã„å ´åˆã¯0ï¼‰
+	#define dataSetCooperativityStepSize 100	//data setã®å…±åŒæ€§ã®0ã‹ã‚‰1ã¾ã§ã®åˆ»ã¿ã®å€‹æ•°
+	#define sigmaConfficient 1	//ã‚°ãƒ©ãƒ•ç”Ÿæˆã«ãŠã‘ã‚‹æ¡ä»¶ç¯„å›² æ¨™æº–åå·®(sigma)ãŒ1->68.27%ï¼Œ2->95.45%ï¼Œ3->99.73%
+	#define SimulationStop 100	//ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³å›æ•°ï¼ã“ã®å›æ•°ã‚’è¶…ãˆãŸå ´åˆå¼·åˆ¶çµ‚äº†ã—ã¾ã™ï¼
+#define sociariumAnimationStepSize 5000	//sociariumã®ã‚°ãƒ©ãƒ•ã‚’ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã«ã™ã‚‹éš›ï¼Œæ™‚é–“è»¸ã‚’ä½•å˜ä½ã§é€²ã‚ã¦ã„ããŸã„ã‹
 
-/* \‘¢‘Ì */
+/* æ§‹é€ ä½“ */
 typedef struct{
-	int f[fe];	//“Á’¥
-	
-} agent;
+	int feature[features];	//ç‰¹å¾´
+} createAgentType;
 
 
-/* ŠO•”•Ï” */
-int lattice_mdl[ag_num][ag_num];	//Šiqƒ‚ƒfƒ‹‚Ì—×Ús—ñ
-int cd_nw[ag_num][ag_num];	//cultural drift‚·‚éƒlƒbƒgƒ[ƒN‚Ì—×Ús—ñ
-int olap[ag_num][ag_num];	;//overlap
-int wt[wt_num];	//’†g‚Ímain•¶‚É‘‚¢‚Ä‚ ‚é
-agent ag[ag_num];
-int node_through_list[ag_num];	//dfs‚Å’Ê‰ß‚µ‚½ƒm[ƒh‚ÍŠY“–‚·‚é—ñ‚É1‚ğ“ü‚ê‚é
-int node_through_count;	//dfs‚Å’Ê‰ß‚µ‚½ƒm[ƒh‚ğƒJƒEƒ“ƒg‚·‚é(dfs‚ÍÄ‹AŒÄ‚Ño‚µ‚µ‚Ä‚¢‚é‚Ì‚Å‚±‚Ì•Ï”‚ÍŠO•”•Ï”‚É‚µ‚È‚«‚áƒ_ƒ)
-int node_list_of_network[2];	//“Yš0‚Ì”z—ñ‚É‚Íu‰½ŒÂ–Ú‚Ì˜AŒ‹ƒOƒ‰ƒt‚©v‚ğC“Yš1‚É‚Íu‚·‚×‚Ä‚Ì˜AŒ‹ƒOƒ‰ƒt‚Ì’†‚ÅÅ‚à‘å‚«‚¢ƒOƒ‰ƒt‚Ìƒm[ƒh”v‚ğŠi”[
-int max_size_network[ag_num][ag_num];	//˜AŒ‹ƒOƒ‰ƒt‚Ì‚¤‚¿Å‚à‘½‚­‚Ìagent”‚ğ‚à‚ÂƒOƒ‰ƒt‚ğ•Û‘¶‚·‚é
+/* å¤–éƒ¨å¤‰æ•° */
+int latticeGraph[agents][agents];	//æ ¼å­ãƒ¢ãƒ‡ãƒ«ã®éš£æ¥è¡Œåˆ—
+int evolvingNetwork[agents][agents];	//cultural driftã™ã‚‹ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®éš£æ¥è¡Œåˆ—
+int networkAddedSimilarity[agents][agents];	//overlap
+int writeOutEventTimes[writeOutFileNumber];	//ä¸­èº«ã¯mainæ–‡ã«æ›¸ã„ã¦ã‚ã‚‹
+createAgentType agent[agents];
+int throughNodeListInDfs[agents];	//dfsã§é€šéã—ãŸãƒãƒ¼ãƒ‰ã¯è©²å½“ã™ã‚‹åˆ—ã«1ã‚’å…¥ã‚Œã‚‹
+int connectedGraphInformation[2];	//æ·»å­—0ã®é…åˆ—ã«ã¯ã€Œä½•å€‹ç›®ã®é€£çµã‚°ãƒ©ãƒ•ã‹ã€ã‚’ï¼Œæ·»å­—1ã«ã¯ã€Œã™ã¹ã¦ã®é€£çµã‚°ãƒ©ãƒ•ã®ä¸­ã§æœ€ã‚‚å¤§ãã„ã‚°ãƒ©ãƒ•ã®ãƒãƒ¼ãƒ‰æ•°ã€ã‚’æ ¼ç´
+int maxSizeNetwork[agents][agents];	//é€£çµã‚°ãƒ©ãƒ•ã®ã†ã¡æœ€ã‚‚å¤šãã®agentæ•°ã‚’ã‚‚ã¤ã‚°ãƒ©ãƒ•ã‚’ä¿å­˜ã™ã‚‹
 
 
-/* ƒvƒƒgƒ^ƒCƒvéŒ¾ */
-void lattice_func(void);
-void lattice_to_torus(void);
-void tr_func(void);
-int KD_func(int *p, int*q);
-void olap_func(void);
-void latcd_cpyfunc(void);
-void initialization_1(int *p,int x);
+/* ãƒ—ãƒ­ãƒˆã‚¿ã‚¤ãƒ—å®£è¨€ */
+void createLatticeGraph(void);
+void convertLatticeToTorus(void);
+void assignAgentToTrait(void);
+int countCommonFeature(int *p, int*q);
+void createNetworkAddedSimilarity(void);
+void copyLatticeGraphToEvolvingNetwork(void);
+void initializeIntArray(int *p,int x);
 void dfs1(int v);
 void dfs2(int v);
-int network_island_count(void);
-int culture_count_function(void);
-void max_size_network_func(void);
+int countIslandNetwork(void);
+int countCulture(void);
+void createMaxSizeNetwork(void);
 void orgnl_mdl(void);
-double a_rate_of_bridge_func(void);
-int vertex_list_check(int *p, int array_length);
+double countNetworkBridge(void);
+int reachVertexCheck(int *p, int array_length);
 int dijkstra(int node_u,int node_v,int *ver,int *dis,int length);
-int shortest_path_func(int node_u, int node_v);
-double average_vertex_distance(void);
-double cluster_calculate_func(int node_i);
-int degree_count(int node_i);
-double average_cluster_calculate_func(void);
-void read_data_set_func(char *filename, double *cooperation_parameter, double *island_number_av_array, double *agent_number_av_array, double *culture_number_av_array, double *cluster_number_av_array, double *shortest_path_av_array, double *bridge_number_av_array, double *island_number_variance_array, double *agent_number_variance_array, double *culture_number_variance_array, double *cluster_number_variance_array, double *shortest_path_variance_array, double *bridge_number_variance_array, double *island_number_standard_deviation_array,  double *agent_number_standard_deviation_array, double *culture_number_standard_deviation_array, double *cluster_number_standard_deviation_array, double *shortest_path_standard_deviation_array, double *bridge_number_standard_deviation_array);
+int calculateVertexDistance(int node_u, int node_v);
+double calculateAverageVertexDistance(void);
+double calculateClusterCoefficient(int node_i);
+int calculateDegree(int node_i);
+double calculateAverageClusterCoefficient(void);
+void writeDataSetOnMemory(char *filename, double *cooperation_parameter, double *island_number_av_array, double *agent_number_av_array, double *culture_number_av_array, double *cluster_number_av_array, double *shortest_path_av_array, double *bridge_number_av_array, double *island_number_variance_array, double *agent_number_variance_array, double *culture_number_variance_array, double *cluster_number_variance_array, double *shortest_path_variance_array, double *bridge_number_variance_array, double *island_number_standard_deviation_array,  double *agent_number_standard_deviation_array, double *culture_number_standard_deviation_array, double *cluster_number_standard_deviation_array, double *shortest_path_standard_deviation_array, double *bridge_number_standard_deviation_array);
 int network_edges_count(void);
 
 
-/* ŠO•”ŠÖ” */
-void lattice_func(void){	//Šiqƒ‚ƒfƒ‹ì¬ƒAƒ‹ƒSƒŠƒYƒ€
+/* å¤–éƒ¨é–¢æ•° */
+void createLatticeGraph(void){	//æ ¼å­ãƒ¢ãƒ‡ãƒ«ä½œæˆã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ 
 	int i,j;
 	
-	/* ‰Šú‰» */
-	for(i=0;i<ag_num;i++){	//s—ñ‚Ìc
-		initialization_1(lattice_mdl[i],ag_num);	//s—ñ‚Ì‰¡
-		initialization_1(cd_nw[i],ag_num);	//s—ñ‚Ì‰¡
+	/* åˆæœŸåŒ– */
+	for(i=0;i<agents;i++){	//è¡Œåˆ—ã®ç¸¦
+		initializeIntArray(latticeGraph[i],agents);	//è¡Œåˆ—ã®æ¨ª
+		initializeIntArray(evolvingNetwork[i],agents);	//è¡Œåˆ—ã®æ¨ª
 	}
 	
-	for(i=0;i<ag_num;i++){
-		for(j=i;j<ag_num;j++){
+	for(i=0;i<agents;i++){
+		for(j=i;j<agents;j++){
 			if(i == j){
-				lattice_mdl[i][j] = 0;
+				latticeGraph[i][j] = 0;
 			}
 			else{
-				if( ((i+1) == j) && ((i+1)%lg != 0)){
-					lattice_mdl[i][j] = 1;	//‰E‚ÉƒŠƒ“ƒN‚ğL‚Î‚·
-					lattice_mdl[j][i] = 1;
+				if( ((i+1) == j) && ((i+1)%latticeSideSize != 0)){
+					latticeGraph[i][j] = 1;	//å³ã«ãƒªãƒ³ã‚¯ã‚’ä¼¸ã°ã™
+					latticeGraph[j][i] = 1;
 				}
-				if( ((j-i) == lg) && ((i+lg) < ag_num)){
-					lattice_mdl[i][i+lg] = 1;	//‰º‚ÉƒŠƒ“ƒN‚ğL‚Î‚·
-					lattice_mdl[i+lg][i] = 1;
+				if( ((j-i) == latticeSideSize) && ((i+latticeSideSize) < agents)){
+					latticeGraph[i][i+latticeSideSize] = 1;	//ä¸‹ã«ãƒªãƒ³ã‚¯ã‚’ä¼¸ã°ã™
+					latticeGraph[i+latticeSideSize][i] = 1;
 				}
 			}
 		}
 	}
 	
-	if(make_torus){
-		lattice_to_torus();
+	if(latticeToTorus){
+		convertLatticeToTorus();
 	}
 }
 
-void lattice_to_torus(void){
+void convertLatticeToTorus(void){
 	int i,j;
 	
-	for(i=0;i<ag_num;i++){
-		for(j=i;j<ag_num;j++){
+	for(i=0;i<agents;i++){
+		for(j=i;j<agents;j++){
 			if(i == j){
-				lattice_mdl[i][j] = 0;
+				latticeGraph[i][j] = 0;
 			}
 			else{
-				if( ((j+1-i) == lg) && (i%lg==0)){
-					lattice_mdl[i][j] = 1;	//‰¡‚ÉƒŠƒ“ƒN‚ğL‚Î‚·
-					lattice_mdl[j][i] = 1;
+				if( ((j+1-i) == latticeSideSize) && (i%latticeSideSize==0)){
+					latticeGraph[i][j] = 1;	//æ¨ªã«ãƒªãƒ³ã‚¯ã‚’ä¼¸ã°ã™
+					latticeGraph[j][i] = 1;
 				}
-				if( ((j-i) == (lg*lg-lg)) && (i < lg)){
-					lattice_mdl[i][j] = 1;	//c‚ÉƒŠƒ“ƒN‚ğL‚Î‚·
-					lattice_mdl[j][i] = 1;
+				if( ((j-i) == (latticeSideSize*latticeSideSize-latticeSideSize)) && (i < latticeSideSize)){
+					latticeGraph[i][j] = 1;	//ç¸¦ã«ãƒªãƒ³ã‚¯ã‚’ä¼¸ã°ã™
+					latticeGraph[j][i] = 1;
 				}
 			}
 		}
 	}
 }
 
-void tr_func(void){	//ŒÂX‚É“Á«‚ğŠ„‚è“–‚Ä‚é
+void assignAgentToTrait(void){	//å€‹ã€…ã«ç‰¹æ€§ã‚’å‰²ã‚Šå½“ã¦ã‚‹
 	int i,j;
 	
-	for(i=0;i<ag_num;i++){
-		initialization_1(ag[i].f,fe);
+	for(i=0;i<agents;i++){
+		initializeIntArray(agent[i].feature,features);
 	}
 	
-	for(i=0;i<ag_num;i++){
+	for(i=0;i<agents;i++){
 		
-		for(j=0;j<fe;j++){
-			ag[i].f[j] = (int)genrand_int31() % tr;	//[0,tr-1]‚Ü‚Å‚ÌŠÔ‚Å—”‚ğæ‚é
-			/*
-			while(ag[i].f[j] < 0){
-				ag[i].f[j] = (int)genrand_real2()*10000 % tr;
-			}*/
-			
+		for(j=0;j<features;j++){
+			agent[i].feature[j] = (int)genrand_int31() % traits;	//[0,traits-1]ã¾ã§ã®é–“ã§ä¹±æ•°ã‚’å–ã‚‹
 		}
 	}
 }
 
-int KD_func(int *p, int*q){	//2‚Â‚Ì”z—ñp‚Æq‚ªŒİ‚¢‚É‹¤—L‚µ‚Ä‚¢‚é•¶‰»‚Ì”‚ğ•Ô‚·ŠÖ”
+int countCommonFeature(int *p, int*q){	//2ã¤ã®é…åˆ—pã¨qãŒäº’ã„ã«å…±æœ‰ã—ã¦ã„ã‚‹æ–‡åŒ–ã®æ•°ã‚’è¿”ã™é–¢æ•°
 	int i,n=0;
 	
-	for(i=0;i<fe;i++){
+	for(i=0;i<features;i++){
 		if(*p == *q){
 			n = n + 1;
 		}
@@ -161,34 +150,34 @@ int KD_func(int *p, int*q){	//2‚Â‚Ì”z—ñp‚Æq‚ªŒİ‚¢‚É‹¤—L‚µ‚Ä‚¢‚é•¶‰»‚Ì”‚ğ•Ô‚·ŠÖ
 	return n;
 }
 
-void olap_func(void){
+void createNetworkAddedSimilarity(void){
 	int i,j;
 	
-	for(i=0;i<ag_num;i++){	//s—ñ‚Ìc
-		initialization_1(olap[i],ag_num);	//s—ñ‚Ì‰¡
+	for(i=0;i<agents;i++){	//è¡Œåˆ—ã®ç¸¦
+		initializeIntArray(networkAddedSimilarity[i],agents);	//è¡Œåˆ—ã®æ¨ª
 	}
 	
-	for(i=0;i<ag_num;i++){
-		for(j=0;j<ag_num;j++){
-			if(lattice_mdl[i][j]==1){
-				olap[i][j] = KD_func(ag[i].f,ag[j].f);
+	for(i=0;i<agents;i++){
+		for(j=0;j<agents;j++){
+			if(latticeGraph[i][j]==1){
+				networkAddedSimilarity[i][j] = countCommonFeature(agent[i].feature,agent[j].feature);
 			}
 		}
 	}
 }
 
-void latcd_cpyfunc(void){	//ƒŒƒMƒ…ƒ‰[Šiq‚Ì—×Ús—ñ‚ğ•¶‰»—¬•z‚µ‚Ä•Ï‰»‚·‚é‚Ì‚Ég‚¤—×Ús—ñ‚É—v‘f‚ğƒRƒs[‚·‚é
+void copyLatticeGraphToEvolvingNetwork(void){	//ãƒ¬ã‚®ãƒ¥ãƒ©ãƒ¼æ ¼å­ã®éš£æ¥è¡Œåˆ—ã‚’æ–‡åŒ–æµå¸ƒã—ã¦å¤‰åŒ–ã™ã‚‹ã®ã«ä½¿ã†éš£æ¥è¡Œåˆ—ã«è¦ç´ ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
 	int i,j;
 	
-	for(i=0;i<ag_num;i++){
-		for(j=0;j<ag_num;j++){
-			cd_nw[i][j] = lattice_mdl[i][j];
+	for(i=0;i<agents;i++){
+		for(j=0;j<agents;j++){
+			evolvingNetwork[i][j] = latticeGraph[i][j];
 		}
 	}
 }
 
-//—^‚¦‚ç‚ê‚½”z—ñ‚Ì’†g‚ğ‘S‚Ä0‚É‚·‚é
-void initialization_1(int *p,int x){	//p‚Í1ŸŒ³”z—ñ‚Ìƒ|ƒCƒ“ƒ^Cx‚Í”z—ñ‚Ì‘å‚«‚³
+//ä¸ãˆã‚‰ã‚ŒãŸé…åˆ—ã®ä¸­èº«ã‚’å…¨ã¦0ã«ã™ã‚‹
+void initializeIntArray(int *p,int x){	//pã¯1æ¬¡å…ƒé…åˆ—ã®ãƒã‚¤ãƒ³ã‚¿ï¼Œxã¯é…åˆ—ã®å¤§ãã•
 	int i;
 	
 	for(i=0;i<x;i++){
@@ -198,54 +187,54 @@ void initialization_1(int *p,int x){	//p‚Í1ŸŒ³”z—ñ‚Ìƒ|ƒCƒ“ƒ^Cx‚Í”z—ñ‚Ì‘å‚«‚³
 	}
 }
 
-//[‚³—Dæ’Tõ
+//æ·±ã•å„ªå…ˆæ¢ç´¢
 void dfs1(int v){
 	int i;
 	
-	node_through_list[v] = 1;
+	throughNodeListInDfs[v] = 1;
 	
-	for(i=0;i<ag_num;i++){
-		if((cd_nw[v][i] == 1 )&& (node_through_list[i] == 0)){
+	for(i=0;i<agents;i++){
+		if((evolvingNetwork[v][i] == 1 )&& (throughNodeListInDfs[i] == 0)){
 			dfs1(i);
 		}
 	}
 }
 
-//[‚³—Dæ’TõŠÖ”(–ß‚è’l‚È‚µver(Å‚à‘å‚«‚È˜AŒ‹ƒOƒ‰ƒt‚à“¯ì¬)
+//æ·±ã•å„ªå…ˆæ¢ç´¢é–¢æ•°(æˆ»ã‚Šå€¤ãªã—ver(æœ€ã‚‚å¤§ããªé€£çµã‚°ãƒ©ãƒ•ã‚‚åŒæ™‚ä½œæˆ)
 void dfs2(int v){
 	int i;
 	
-	node_through_list[v] = 1;
+	throughNodeListInDfs[v] = 1;
 	
-	for(i=0;i<ag_num;i++){
-		if(cd_nw[v][i] == 1){
-			max_size_network[v][i] = 1;
-			//max_size_network[i][v] = 1;	//‘½•ª‚È‚­‚Ä‚à³í“®ì‚·‚é
+	for(i=0;i<agents;i++){
+		if(evolvingNetwork[v][i] == 1){
+			maxSizeNetwork[v][i] = 1;
+			//maxSizeNetwork[i][v] = 1;	//å¤šåˆ†ãªãã¦ã‚‚æ­£å¸¸å‹•ä½œã™ã‚‹
 			
-			if(node_through_list[i] == 0){
+			if(throughNodeListInDfs[i] == 0){
 				dfs2(i);
 			}
 		}
 	}
 }
 
-int network_island_count(void){
-	int count = 0;	//“‡‚Ì”
+int countIslandNetwork(void){
+	int count = 0;	//å³¶ã®æ•°
 	int i,j,dummy;
 	int af_node_through_list_number = 0;
 	int bf_node_through_list_number = 0;
 	
-	initialization_1(node_through_list,ag_num);	//‰Šú‰»
-	initialization_1(node_list_of_network,2);
+	initializeIntArray(throughNodeListInDfs,agents);	//åˆæœŸåŒ–
+	initializeIntArray(connectedGraphInformation,2);
 	
-	for(i=0;i<ag_num;i++){
-		if(node_through_list[i] == 0){
+	for(i=0;i<agents;i++){
+		if(throughNodeListInDfs[i] == 0){
 			af_node_through_list_number = 0;
 			
-			dfs1(i);	//[‚³—Dæ’TõŠÖ”
+			dfs1(i);	//æ·±ã•å„ªå…ˆæ¢ç´¢é–¢æ•°
 			
-			for(j=0;j<ag_num;j++){
-				if(node_through_list[j] == 1){
+			for(j=0;j<agents;j++){
+				if(throughNodeListInDfs[j] == 1){
 					af_node_through_list_number++;
 				}
 			}
@@ -255,15 +244,10 @@ int network_island_count(void){
 			
 			dummy = af_node_through_list_number;
 			
-			//printf("%d\n",dfs(i));
-			
-			if(dummy > node_list_of_network[1]){	//Å‚à‘å‚«‚¢“‡‚¾‚¯‚ğ‹L˜^‚·‚é
-				node_list_of_network[0] = count;	//‰½‰ñ–Ú‚Ìdfs1‚É‚ÍC
-				node_list_of_network[1] = dummy;	//‚¢‚­‚Â‚Ìƒm[ƒh‚ªW‚Ü‚Á‚Ä‚¢‚é‚©
-				
-				//printf("test1\n");
+			if(dummy > connectedGraphInformation[1]){	//æœ€ã‚‚å¤§ãã„å³¶ã ã‘ã‚’è¨˜éŒ²ã™ã‚‹
+				connectedGraphInformation[0] = count;	//ä½•å›ç›®ã®dfs1ã«ã¯ï¼Œ
+				connectedGraphInformation[1] = dummy;	//ã„ãã¤ã®ãƒãƒ¼ãƒ‰ãŒé›†ã¾ã£ã¦ã„ã‚‹ã‹
 			}
-			//printf("test2\n");
 			
 			count++;
 		}
@@ -272,71 +256,65 @@ int network_island_count(void){
 	return count;
 }
 
-int culture_count_function(void){	//•¶‰»‚Ìí—Ş‚ğ”‚¦‚éŠÖ”
-	agent *kinds_of_culture_list;
+int countCulture(void){	//æ–‡åŒ–ã®ç¨®é¡ã‚’æ•°ãˆã‚‹é–¢æ•°
+	createAgentType *kinds_of_culture_list;
 	int i,j=0,k,m,count=0;
 	
-	for(i=0;i<ag_num;i++){				if(i==0){
-			kinds_of_culture_list = (agent *)malloc(sizeof(agent)*(j+1));	//‚±‚±‚Ì“_‚Å‚Íj=0‚È‚Ì‚Åj+1‚µ‚Ä”z—ñ‚ğì‚é
+	for(i=0;i<agents;i++){				if(i==0){
+			kinds_of_culture_list = (createAgentType *)malloc(sizeof(createAgentType)*(j+1));	//ã“ã“ã®æ™‚ç‚¹ã§ã¯j=0ãªã®ã§j+1ã—ã¦é…åˆ—ã‚’ä½œã‚‹
 			
-			for(k=0;k<fe;k++){
-				kinds_of_culture_list[j].f[k] = ag[i].f[k];
+			for(k=0;k<features;k++){
+				kinds_of_culture_list[j].feature[k] = agent[i].feature[k];
 			}
 			
 			j++;
 		}
 		else{
 			for(m=0;m<j;m++){
-				//printf("KD=%d\n",KD_func(kinds_of_culture_list[m].f, ag[i].f));
-				if(KD_func(kinds_of_culture_list[m].f, ag[i].f) != fe){
-					count++;	//‚±‚Ìcount‚Í2‚Â‚Ìfor•¶‚Ì’†‚É‚ ‚é‚±‚Æ‚É’ˆÓ‚·‚é
+				if(countCommonFeature(kinds_of_culture_list[m].feature, agent[i].feature) != features){
+					count++;	//ã“ã®countã¯2ã¤ã®foræ–‡ã®ä¸­ã«ã‚ã‚‹ã“ã¨ã«æ³¨æ„ã™ã‚‹
 				}
 			}
-			//printf("j=%d,m=%d,test\n",j,m);
-			if(count==j){	//kinds_of_culture_list‚ÉŠÜ‚Ü‚ê‚È‚¢•¶‰»ag[i]‚È‚ç‚Î
-				if((kinds_of_culture_list = (agent *)realloc(kinds_of_culture_list,sizeof(agent)*(j+1))) == NULL){
-					printf("realloc‚Éƒƒ‚ƒŠ‚ªŠm•Û‚Å‚«‚Ü‚¹‚ñ\n");
-					free(kinds_of_culture_list);  /* Œ³‚Ìkinds_of_culture_list‚ğ‰ğ•ú‚µ‚ÄI—¹ */
+			if(count==j){	//kinds_of_culture_listã«å«ã¾ã‚Œãªã„æ–‡åŒ–ag[i]ãªã‚‰ã°
+				if((kinds_of_culture_list = (createAgentType *)realloc(kinds_of_culture_list,sizeof(createAgentType)*(j+1))) == NULL){
+					printf("reallocæ™‚ã«ãƒ¡ãƒ¢ãƒªãŒç¢ºä¿ã§ãã¾ã›ã‚“\n");
+					free(kinds_of_culture_list);  /* å…ƒã®kinds_of_culture_listã‚’è§£æ”¾ã—ã¦çµ‚äº† */
 					
 					exit(1);
 				}
 				else{
-					for(k=0;k<fe;k++){
-						kinds_of_culture_list[j].f[k] = ag[i].f[k];
+					for(k=0;k<features;k++){
+						kinds_of_culture_list[j].feature[k] = agent[i].feature[k];
 					}
 				}
 				j++;
 			}
-			//printf("test\n");
 			
 			count = 0;
 		}
 	}
-	//printf("test_end\n");	//‚±‚±‚Ü‚Ås‚«’…‚©‚È‚¢
 	
 	free(kinds_of_culture_list);
 	
 	return j;
 }
 
-void max_size_network_func(void){
+void createMaxSizeNetwork(void){
 	int count = 0;
 	int i;
 	
-	initialization_1(node_through_list,ag_num);	//‰Šú‰»
+	initializeIntArray(throughNodeListInDfs,agents);	//åˆæœŸåŒ–
 	
-	for(i=0;i<ag_num;i++){	//s—ñ‚Ìc
-		initialization_1(max_size_network[i],ag_num);	//s—ñ‚Ì‰¡
+	for(i=0;i<agents;i++){	//è¡Œåˆ—ã®ç¸¦
+		initializeIntArray(maxSizeNetwork[i],agents);	//è¡Œåˆ—ã®æ¨ª
 	}
 	
-	for(i=0;i<ag_num;i++){
-		if(node_through_list[i] == 0){
-			if(node_list_of_network[0] == count){
-				//printf("node_list_of_network[0] = %d\n",node_list_of_network[0]);
-				//printf("test3\n");
-				dfs2(i);	//[‚³—Dæ’TõŠÖ”(Å‚à‘å‚«‚È˜AŒ‹ƒOƒ‰ƒt‚à“¯ì¬)
+	for(i=0;i<agents;i++){
+		if(throughNodeListInDfs[i] == 0){
+			if(connectedGraphInformation[0] == count){
+				dfs2(i);	//æ·±ã•å„ªå…ˆæ¢ç´¢é–¢æ•°(æœ€ã‚‚å¤§ããªé€£çµã‚°ãƒ©ãƒ•ã‚‚åŒæ™‚ä½œæˆ)
 			}
-			else dfs1(i);	//[‚³—Dæ’TõŠÖ”
+			else dfs1(i);	//æ·±ã•å„ªå…ˆæ¢ç´¢é–¢æ•°
 			
 			count++;
 		}
@@ -351,116 +329,94 @@ void orgnl_mdl(void){
 	double a;
 	int b;
 	
-	//printf("debag_lineA\n");
+	while(n==0){	//å­¤ç‹¬ãªã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆ(éš£æ¥ãƒãƒ¼ãƒ‰ãŒ0)ã¯é™¤ã„ã¦ä¹±æ•°ã‚’å–ã‚‹
+		x = (int)(genrand_real1()*(double)(agents-1 -0 +1)/(double)agents);	//æ´»æ€§åŒ–ã•ã›ã‚‹agentã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«é¸å‡º
 	
-	while(n==0){	//ŒÇ“Æ‚ÈƒG[ƒWƒFƒ“ƒg(—×Úƒm[ƒh‚ª0)‚Íœ‚¢‚Ä—”‚ğæ‚é
-		x = (int)(genrand_real1()*(double)(ag_num-1 -0 +1)/(double)ag_num);	//Šˆ«‰»‚³‚¹‚éagent‚ğƒ‰ƒ“ƒ_ƒ€‚É‘Io
-	
-		for(i=0;i<ag_num;i++){
-			if(cd_nw[x][i] == 1){
-				//printf("test by Centola_AA\n");
+		for(i=0;i<agents;i++){
+			if(evolvingNetwork[x][i] == 1){
 				n = n+1;
 			}
 		}
 	}
 	
-	//printf("debag_lineB\n");
+	nb_lst = (int *)malloc(sizeof(int) * n);	//nb_lst: neighbor agent listã®ç•¥
 	
-	nb_lst = (int *)malloc(sizeof(int) * n);	//nb_lst: neighbor agent list‚Ì—ª
-	
-	//printf("debag_lineC\n");
-	
-	for(i=0;i<ag_num;i++){
-		if(cd_nw[x][i] == 1){
-			nb_lst[m] = i;	//nb_lst‚Íagent x‚Ì—×Úƒm[ƒhƒŠƒXƒg
+	for(i=0;i<agents;i++){
+		if(evolvingNetwork[x][i] == 1){
+			nb_lst[m] = i;	//nb_lstã¯agent xã®éš£æ¥ãƒãƒ¼ãƒ‰ãƒªã‚¹ãƒˆ
 			
 			m++;
 		}
 	}
 	
-	//printf("debag_lineD\n");
+	y = (int)genrand_int31() % n;	// 0å‰²ã«æ³¨æ„
 	
-	y = (int)genrand_int31() % n;	// 0Š„‚É’ˆÓ
+	if((0 < countCommonFeature(agent[x].feature, agent[ nb_lst[y] ].feature)) && (countCommonFeature(agent[x].feature, agent[ nb_lst[y] ].feature) < features)){	//ç›¸äº’ä½œç”¨å¯¾è±¡ãŒå…¨ã¦è‡ªåˆ†ã¨åŒã˜æ–‡åŒ–ã‚’æŒã£ã¦ã„ãŸå ´åˆä½•ã‚‚ã›ãšã«çµ‚ã‚ã‚‹
 	
-	//printf("debag_lineE\n");
-	
-	if((0 < KD_func(ag[x].f, ag[ nb_lst[y] ].f)) && (KD_func(ag[x].f, ag[ nb_lst[y] ].f) < fe)){	//‘ŠŒİì—p‘ÎÛ‚ª‘S‚Ä©•ª‚Æ“¯‚¶•¶‰»‚ğ‚Á‚Ä‚¢‚½ê‡‰½‚à‚¹‚¸‚ÉI‚í‚é
-		//printf("test by olgmdl_mdl_A\n");
+		//å…±æœ‰ã—ã¦ã„ãªã„æ–‡åŒ–ã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«é¸ã¶
+		b = (int)genrand_int31()%features;
 		
-		
-		//printf("%d\n",x);
-		
-		
-		//‹¤—L‚µ‚Ä‚¢‚È‚¢•¶‰»‚ğƒ‰ƒ“ƒ_ƒ€‚É‘I‚Ô
-		b = (int)genrand_int31()%fe;
-		
-		while(ag[x].f[b] == ag[ nb_lst[y] ].f[b]){
-			b = (int)genrand_int31()%fe;
+		while(agent[x].feature[b] == agent[ nb_lst[y] ].feature[b]){
+			b = (int)genrand_int31()%features;
 		}
 		
-		//Šˆ«‰»agent‚Ìb”Ô–Ú‚Ì•¶‰»(ag[x].f[b])‚Í‘¼‚Ì—×Úagent‚Æ‹¤—L‚µ‚Ä‚¢‚é‚©
+		//æ´»æ€§åŒ–agentã®bç•ªç›®ã®æ–‡åŒ–(agent[x].feature[b])ã¯ä»–ã®éš£æ¥agentã¨å…±æœ‰ã—ã¦ã„ã‚‹ã‹
 		for(i=0;i<n;i++){
-			if(ag[x].f[b] == ag[ nb_lst[i] ].f[b]){	//‹¤—L‚µ‚Ä‚¢‚½ê‡
-				count++;	//‚±‚ê‚ğg‚¤‚ÆŒÂX‚Ì•Ûç«ƒpƒ‰ƒ[ƒ^‚àl‚¦‚é‚±‚Æ‚ª‚Å‚«‚é
+			if(agent[x].feature[b] == agent[ nb_lst[i] ].feature[b]){	//å…±æœ‰ã—ã¦ã„ãŸå ´åˆ
+				count++;	//ã“ã‚Œã‚’ä½¿ã†ã¨å€‹ã€…ã®ä¿å®ˆæ€§ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚‚è€ƒãˆã‚‹ã“ã¨ãŒã§ãã‚‹
 			}
 		}
 		
-		if(count > 0){	//•Ûç«‚ğŠÜ‚ß‚½‘ŠŒİì—p‚ğ‚·‚é
-			a = ((double)KD_func(ag[x].f, ag[ nb_lst[y] ].f)*(1-conservativeness_parameter))/(double)fe;	//Šm—¦( O(i,j)*•Ûç«) /F‚ğŒvZ
+		if(count > 0){	//ä¿å®ˆæ€§ã‚’å«ã‚ãŸç›¸äº’ä½œç”¨ã‚’ã™ã‚‹
+			a = ((double)countCommonFeature(agent[x].feature, agent[ nb_lst[y] ].feature)*(1-cooperativityParameter))/(double)features;	//ç¢ºç‡( O(i,j)*ä¿å®ˆæ€§) /Fã‚’è¨ˆç®—
 		}
 		else if(count == 0){
-			a = (double)KD_func(ag[x].f, ag[ nb_lst[y] ].f)/(double)fe;	//Šm—¦O(i,j)/F‚ğŒvZ
+			a = (double)countCommonFeature(agent[x].feature, agent[ nb_lst[y] ].feature)/(double)features;	//ç¢ºç‡O(i,j)/Fã‚’è¨ˆç®—
 		}
 		
-		//printf("%f/%f=%f\n",(double)KD_func(ag[x].f, ag[ nb_lst[y] ].f),(double)fe,a);
-		//printf("test by Centola_mdl_B\n");
-		
-		if(a >= genrand_real1()){	//•¶‰»—Ş—“x‚É‚æ‚éŠm—¦‚ª¬Œ÷‚µ‚½ê‡
-			//printf("test by Centola_mdl_C\n")
-			
-			ag[x].f[b] = ag[ nb_lst[y] ].f[b];
+		if(a >= genrand_real1()){	//æ–‡åŒ–é¡ä¼¼åº¦ã«ã‚ˆã‚‹ç¢ºç‡ãŒæˆåŠŸã—ãŸå ´åˆ
+			agent[x].feature[b] = agent[ nb_lst[y] ].feature[b];
 		}
 	}
 	
-	if(KD_func(ag[x].f, ag[ nb_lst[y] ].f) == 0){	//—Ş—«=0‚Ì‚Æ‚«
-		cd_nw[x][ nb_lst[y] ] = 0;
-		cd_nw[ nb_lst[y] ][x] = 0;
+	if(countCommonFeature(agent[x].feature, agent[ nb_lst[y] ].feature) == 0){	//é¡ä¼¼æ€§=0ã®ã¨ã
+		evolvingNetwork[x][ nb_lst[y] ] = 0;
+		evolvingNetwork[ nb_lst[y] ][x] = 0;
 		
-		yy = (int)(genrand_real1()*(double)(ag_num-1 -0 +1)/(double)ag_num);
+		yy = (int)(genrand_real1()*(double)(agents-1 -0 +1)/(double)agents);
 		
-		while((x == yy) || ( nb_lst[y] == yy) || (cd_nw[x][yy] == 1) || (cd_nw[yy][x] == 1)){
-			yy = (int)(genrand_real1()*(double)(ag_num-1 -0 +1)/(double)ag_num);
+		while((x == yy) || ( nb_lst[y] == yy) || (evolvingNetwork[x][yy] == 1) || (evolvingNetwork[yy][x] == 1)){
+			yy = (int)(genrand_real1()*(double)(agents-1 -0 +1)/(double)agents);
 		}
 		
-		cd_nw[x][yy] = 1;
-		cd_nw[yy][x] = 1;
+		evolvingNetwork[x][yy] = 1;
+		evolvingNetwork[yy][x] = 1;
 	}
 	
 	free(nb_lst);
 }
 
-double a_rate_of_bridge_func(void){
+double countNetworkBridge(void){
 	int a_rate_of_bridge=0;
 	int all_link_count=0;
 	int i,j;
 	
-	for(i=1;i<ag_num;i++){
+	for(i=1;i<agents;i++){
 		for(j=0;j<i;j++){
-			if(cd_nw[i][j]==1){
+			if(evolvingNetwork[i][j]==1){
 				all_link_count++;
 				
-				if((0 < KD_func(ag[i].f,ag[j].f)) && (KD_func(ag[i].f,ag[j].f) < fe)){
+				if((0 < countCommonFeature(agent[i].feature,agent[j].feature)) && (countCommonFeature(agent[i].feature,agent[j].feature) < features)){
 					a_rate_of_bridge++;
 				}
 			}
 		}
 	}
-	//printf("link -> %d\n",all_link_count);
 	
 	return a_rate_of_bridge/(double)all_link_count;
 }
 
-int vertex_list_check(int *p, int array_length){	//”z—ñ‚Ì’†g‚ª‚·‚×‚Ä1‚Å‚ ‚ê‚Î0‚ğ•Ô‚µC‚»‚êˆÈŠO‚Å‚ ‚ê‚Î1‚ğ•Ô‚·
+int reachVertexCheck(int *p, int array_length){	//é…åˆ—ã®ä¸­èº«ãŒã™ã¹ã¦1ã§ã‚ã‚Œã°0ã‚’è¿”ã—ï¼Œãã‚Œä»¥å¤–ã§ã‚ã‚Œã°1ã‚’è¿”ã™
 	int i;
 	
 	for(i=0;i<array_length;i++){
@@ -469,17 +425,17 @@ int vertex_list_check(int *p, int array_length){	//”z—ñ‚Ì’†g‚ª‚·‚×‚Ä1‚Å‚ ‚ê‚Î0‚
 		}
 		p++;
 	}
-	return 0;	//*p ‚ª‘S•” 1 ‚È‚ç‚Îreturn 0
+	return 0;	//*p ãŒå…¨éƒ¨ 1 ãªã‚‰ã°return 0
 }
 
-int dijkstra(int node_u,int node_v,int *ver,int *dis,int length){	//ƒ_ƒCƒNƒXƒgƒ‰–@‚Ì–{ŒvZƒvƒƒOƒ‰ƒ€
+int dijkstra(int node_u,int node_v,int *ver,int *dis,int length){	//ãƒ€ã‚¤ã‚¯ã‚¹ãƒˆãƒ©æ³•ã®æœ¬è¨ˆç®—ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 	int i;
-	int queue[ag_num];	//‚ ‚é’¸“_‚ÉŠÖ‚·‚é—×Úƒm[ƒh‚ªŠi”[‚³‚ê‚é
+	int queue[agents];	//ã‚ã‚‹é ‚ç‚¹ã«é–¢ã™ã‚‹éš£æ¥ãƒãƒ¼ãƒ‰ãŒæ ¼ç´ã•ã‚Œã‚‹
 	int head = 0, tail = 0;
 	int node_adj;
 	int dummy;
 	
-	while(vertex_list_check(ver,ag_num)){
+	while(reachVertexCheck(ver,agents)){
 		dummy = INT_MAX;
 		
 		for(i=0;i<length;i++){
@@ -490,7 +446,7 @@ int dijkstra(int node_u,int node_v,int *ver,int *dis,int length){	//ƒ_ƒCƒNƒXƒgƒ‰
 			}
 		}
 		
-		if(dummy == INT_MAX){	//‚à‚µ‚àÅ¬’l‚ªINT_MAX‚Å‚ ‚ê‚Î‚±‚êˆÈã’Tõ‚·‚éˆÓ–¡‚Í–³‚¢i->•s‰Â”\“’B“_‚µ‚©‚È‚¢j
+		if(dummy == INT_MAX){	//ã‚‚ã—ã‚‚æœ€å°å€¤ãŒINT_MAXã§ã‚ã‚Œã°ã“ã‚Œä»¥ä¸Šæ¢ç´¢ã™ã‚‹æ„å‘³ã¯ç„¡ã„ï¼ˆ->ä¸å¯èƒ½åˆ°é”ç‚¹ã—ã‹ãªã„ï¼‰
 			break;
 		}
 		
@@ -506,16 +462,16 @@ int dijkstra(int node_u,int node_v,int *ver,int *dis,int length){	//ƒ_ƒCƒNƒXƒgƒ‰
 			node_u = queue[head];
 			head++;
 			
-			for(i=0;i<length;i++){	//•Ï” i ‚É‚Í—×Úƒm[ƒh‚ª“ü‚é
-				if(max_size_network[node_u][i]==1){
-					if(dis[i] > (dis[node_u] + max_size_network[node_u][i])){
-						dis[i] = dis[node_u] + max_size_network[node_u][i];
+			for(i=0;i<length;i++){	//å¤‰æ•° i ã«ã¯éš£æ¥ãƒãƒ¼ãƒ‰ãŒå…¥ã‚‹
+				if(maxSizeNetwork[node_u][i]==1){
+					if(dis[i] > (dis[node_u] + maxSizeNetwork[node_u][i])){
+						dis[i] = dis[node_u] + maxSizeNetwork[node_u][i];
 					}
 				}
 			}
 		}
-		//‰Šú‰»
-		initialization_1(queue,ag_num);
+		//åˆæœŸåŒ–
+		initializeIntArray(queue,agents);
 		head = 0;
 		tail = 0;
 	}
@@ -523,16 +479,16 @@ int dijkstra(int node_u,int node_v,int *ver,int *dis,int length){	//ƒ_ƒCƒNƒXƒgƒ‰
 	return dis[node_v];
 }
 
-int shortest_path_func(int node_u, int node_v){	//’¸“_u‚©‚ç’¸“_v‚Ü‚Å‚ÌÅ’Z’¸“_ŠÔ‹——£‚ğŒvZ‚µC‚»‚Ì‹——£‚ğ–ß‚è’l‚Æ‚·‚é
-	int vertex_list[ag_num];
-	int distance_list[ag_num];
+int calculateVertexDistance(int node_u, int node_v){	//é ‚ç‚¹uã‹ã‚‰é ‚ç‚¹vã¾ã§ã®æœ€çŸ­é ‚ç‚¹é–“è·é›¢ã‚’è¨ˆç®—ã—ï¼Œãã®è·é›¢ã‚’æˆ»ã‚Šå€¤ã¨ã™ã‚‹
+	int vertex_list[agents];
+	int distance_list[agents];
 	int prev = node_u;
 	int dummy;
 	int i;
 	
-	//‰Šú‰»
-	for(i=0;i<ag_num;i++){
-		//distance_list‚Ì‰Šú‰»
+	//åˆæœŸåŒ–
+	for(i=0;i<agents;i++){
+		//distance_listã®åˆæœŸåŒ–
 		if(i==node_u){
 			distance_list[i] = 0;
 		}
@@ -540,25 +496,25 @@ int shortest_path_func(int node_u, int node_v){	//’¸“_u‚©‚ç’¸“_v‚Ü‚Å‚ÌÅ’Z’¸“_ŠÔ
 			distance_list[i] = INT_MAX;
 		}
 		
-		//vertex_list‚Ì‰Šú‰»
-		vertex_list[i] = 0;	//vertex_list[i]==1‚È‚ç‚Î’¸“_ i ‚Í’¸“_ƒŠƒXƒg‚©‚çœŠO‚³‚ê‚Ä‚¢‚é‚à‚Ì‚Æ‚·‚é(0‚È‚ç‚Î’¸“_ƒŠƒXƒg‚Ì—v‘f)
+		//vertex_listã®åˆæœŸåŒ–
+		vertex_list[i] = 0;	//vertex_list[i]==1ãªã‚‰ã°é ‚ç‚¹ i ã¯é ‚ç‚¹ãƒªã‚¹ãƒˆã‹ã‚‰é™¤å¤–ã•ã‚Œã¦ã„ã‚‹ã‚‚ã®ã¨ã™ã‚‹(0ãªã‚‰ã°é ‚ç‚¹ãƒªã‚¹ãƒˆã®è¦ç´ )
 	}
-	//‚±‚±‚Ü‚Å‰Šú‰»
+	//ã“ã“ã¾ã§åˆæœŸåŒ–
 	
-	//–{ŒvZ
-	return dijkstra(node_u, node_v, vertex_list, distance_list, ag_num);
+	//æœ¬è¨ˆç®—
+	return dijkstra(node_u, node_v, vertex_list, distance_list, agents);
 }
 
-double average_vertex_distance(void){	//•½‹Ï’¸“_ŠÔ‹——£‚ğŒvZ‚·‚éƒvƒƒOƒ‰ƒ€(d(i,j)‚ªINF‚Ìê‡‚Í”‚É“ü‚ê‚È‚¢)
-	int count=0;	//’¸“_ŠÔ‹——£‚ªINF‚Ì’¸“_‚Ì”‚ğ”‚¦‚é
+double calculateAverageVertexDistance(void){	//å¹³å‡é ‚ç‚¹é–“è·é›¢ã‚’è¨ˆç®—ã™ã‚‹ãƒ—ãƒ­ã‚°ãƒ©ãƒ (d(i,j)ãŒINFã®å ´åˆã¯æ•°ã«å…¥ã‚Œãªã„)
+	int count=0;	//é ‚ç‚¹é–“è·é›¢ãŒINFã®é ‚ç‚¹ã®æ•°ã‚’æ•°ãˆã‚‹
 	int sum=0;
 	int d;
 	int i,j;
 	double av_dis;
 	
-	for(i=1;i<ag_num;i++){
+	for(i=1;i<agents;i++){
 		for(j=0;j<i;j++){
-			d = shortest_path_func(i,j);
+			d = calculateVertexDistance(i,j);
 			
 			if(INT_MAX == d){
 				count++;
@@ -568,27 +524,26 @@ double average_vertex_distance(void){	//•½‹Ï’¸“_ŠÔ‹——£‚ğŒvZ‚·‚éƒvƒƒOƒ‰ƒ€(d(i,j
 			}
 		}
 	}
-	//printf("count->%d, sum->%d\n",count,sum);
 	
-	av_dis = 2.0/(node_list_of_network[1]*(node_list_of_network[1]-1) ) * sum;
+	av_dis = 2.0/(connectedGraphInformation[1]*(connectedGraphInformation[1]-1) ) * sum;
 	
 	return av_dis;
 }
 
-double cluster_calculate_func(int node_i){
+double calculateClusterCoefficient(int node_i){
 	int j,k;
 	int sum=0;
-	int degree_num = degree_count(node_i);
+	int degree_num = calculateDegree(node_i);
 	
-	if(degree_num<2){	//Ÿ”‚ª0‚©1‚Å‚ ‚ê‚ÎƒNƒ‰ƒXƒ^[‚ÍŒ`¬‚Å‚«‚È‚¢‚Ì‚Å0‚ğ•Ô‚·
+	if(degree_num<2){	//æ¬¡æ•°ãŒ0ã‹1ã§ã‚ã‚Œã°ã‚¯ãƒ©ã‚¹ã‚¿ãƒ¼ã¯å½¢æˆã§ããªã„ã®ã§0ã‚’è¿”ã™
 		return 0;
 	}
 	
-	for(j=0;j<ag_num;j++){
-		if(cd_nw[node_i][j]){
-			for(k=0;k<ag_num;k++){
-				if(cd_nw[node_i][k]){
-					if(cd_nw[j][k]){
+	for(j=0;j<agents;j++){
+		if(evolvingNetwork[node_i][j]){
+			for(k=0;k<agents;k++){
+				if(evolvingNetwork[node_i][k]){
+					if(evolvingNetwork[j][k]){
 						sum++;
 					}
 				}
@@ -596,17 +551,17 @@ double cluster_calculate_func(int node_i){
 		}
 	}
 	
-	sum = sum / 2;	//“¯‚¶OŠpŒ`‚ğd•¡‚µ‚Ä”‚¦‚Ä‚¢‚é‚Ì‚Å2‚ÅŠ„‚é
+	sum = sum / 2;	//åŒã˜ä¸‰è§’å½¢ã‚’é‡è¤‡ã—ã¦æ•°ãˆã¦ã„ã‚‹ã®ã§2ã§å‰²ã‚‹
 	
 	return (2.0 / (degree_num * (degree_num - 1))) * sum;
 }
 
-int degree_count(int node_i){
+int calculateDegree(int node_i){
 	int i;
 	int count=0;
 	
-	for(i=0;i<ag_num;i++){
-		if(cd_nw[node_i][i]){
+	for(i=0;i<agents;i++){
+		if(evolvingNetwork[node_i][i]){
 			count++;
 		}
 	}
@@ -614,34 +569,33 @@ int degree_count(int node_i){
 	return count;
 }
 
-double average_cluster_calculate_func(void){
+double calculateAverageClusterCoefficient(void){
 	int node_i;
 	double sum=0, average=0;
 	int dummy;
 	
-	for(node_i=0;node_i<ag_num;node_i++){
-		sum = cluster_calculate_func(node_i) + sum;
+	for(node_i=0;node_i<agents;node_i++){
+		sum = calculateClusterCoefficient(node_i) + sum;
 	}
-	//"average = sum / ag_num"‚Å‚Í‚È‚º‚©ƒGƒ‰[‚ª‹N‚«‚½
-	dummy = ag_num;
+	//"average = sum / agents"ã§ã¯ãªãœã‹ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸ
+	dummy = agents;
 	average = sum / dummy;
-	//sleep(1);
-	//printf("average = %f\n",average);
+	
 	return average;
 }
 
-//‹¤“¯«‚ÉŠÖ‚·‚édata set‚ğ“Ç‚İ‚Ş
-void read_data_set_func(char *filename, double *cooperation_parameter, double *island_number_av_array, double *agent_number_av_array, double *culture_number_av_array, double *cluster_number_av_array, double *shortest_path_av_array, double *bridge_number_av_array, double *island_number_variance_array, double *agent_number_variance_array, double *culture_number_variance_array, double *cluster_number_variance_array, double *shortest_path_variance_array, double *bridge_number_variance_array, double *island_number_standard_deviation_array,  double *agent_number_standard_deviation_array, double *culture_number_standard_deviation_array, double *cluster_number_standard_deviation_array, double *shortest_path_standard_deviation_array, double *bridge_number_standard_deviation_array){
+//å…±åŒæ€§ã«é–¢ã™ã‚‹data setã‚’èª­ã¿è¾¼ã‚€
+void writeDataSetOnMemory(char *filename, double *cooperation_parameter, double *island_number_av_array, double *agent_number_av_array, double *culture_number_av_array, double *cluster_number_av_array, double *shortest_path_av_array, double *bridge_number_av_array, double *island_number_variance_array, double *agent_number_variance_array, double *culture_number_variance_array, double *cluster_number_variance_array, double *shortest_path_variance_array, double *bridge_number_variance_array, double *island_number_standard_deviation_array,  double *agent_number_standard_deviation_array, double *culture_number_standard_deviation_array, double *cluster_number_standard_deviation_array, double *shortest_path_standard_deviation_array, double *bridge_number_standard_deviation_array){
 	FILE *fp;
 	
 	fp = fopen( filename, "r" );
 	if( fp == NULL ){
-		printf( "%sƒtƒ@ƒCƒ‹‚ªŠJ‚¯‚Ü‚¹‚ñ\n", filename );
+		printf( "%sãƒ•ã‚¡ã‚¤ãƒ«ãŒé–‹ã‘ã¾ã›ã‚“\n", filename );
 		exit(1);
 	}
 	else{
 		while(fscanf( fp, "%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf",  cooperation_parameter, island_number_av_array, agent_number_av_array, culture_number_av_array, cluster_number_av_array, shortest_path_av_array, bridge_number_av_array, island_number_variance_array, agent_number_variance_array, culture_number_variance_array, cluster_number_variance_array, shortest_path_variance_array, bridge_number_variance_array, island_number_standard_deviation_array,  agent_number_standard_deviation_array, culture_number_standard_deviation_array, cluster_number_standard_deviation_array, shortest_path_standard_deviation_array, bridge_number_standard_deviation_array) != EOF ){
-			//printf("‹¤“¯«F%f\n",*cooperation_parameter);
+			//printf("å…±åŒæ€§ï¼š%f\n",*cooperation_parameter);
 			
 			cooperation_parameter++;
 			island_number_av_array++;
@@ -666,44 +620,24 @@ void read_data_set_func(char *filename, double *cooperation_parameter, double *i
 	}
 	fclose( fp );
 }
-/* ”z—ñƒo[ƒWƒ‡ƒ“ */
-/*
-//‹¤“¯«‚ÉŠÖ‚·‚édata set‚ğ“Ç‚İ‚Ş
-void read_data_set_func(char *filename, double cooperation_parameter[], double island_number_av_array[], double agent_number_av_array[], double culture_number_av_array[], double cluster_number_av_array[], double shortest_path_av_array[], double bridge_number_av_array[], double island_number_variance_array[], double agent_number_variance_array[], double culture_number_variance_array[], double cluster_number_variance_array[], double shortest_path_variance_array[], double bridge_number_variance_array[], double island_number_standard_deviation_array[],  double agent_number_standard_deviation_array[], double culture_number_standard_deviation_array[], double cluster_number_standard_deviation_array[], double shortest_path_standard_deviation_array[], double bridge_number_standard_deviation_array[]){
-	FILE *fp;
-	int index = 0;
-	
-	fp = fopen( filename, "r" );
-	if( fp == NULL ){
-		printf( "%sƒtƒ@ƒCƒ‹‚ªŠJ‚¯‚Ü‚¹‚ñ\n", filename );
-		exit(1);
-	}
-	else{		
-		while(fscanf( fp, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",   &cooperation_parameter[index],  &island_number_av_array[index],  &agent_number_av_array[index],  &culture_number_av_array[index],  &cluster_number_av_array[index],  &shortest_path_av_array[index],  &bridge_number_av_array[index],  &island_number_variance_array[index],  &agent_number_variance_array[index],  &culture_number_variance_array[index],  &cluster_number_variance_array[index],  &shortest_path_variance_array[index],  &bridge_number_variance_array[index],  &island_number_standard_deviation_array[index],   &agent_number_standard_deviation_array[index],  &culture_number_standard_deviation_array[index],  &cluster_number_standard_deviation_array[index],  &shortest_path_standard_deviation_array[index],  &bridge_number_standard_deviation_array[index]) != EOF ){
-			printf("‹¤“¯«F%f\n",cooperation_parameter[index]);
-			index++;
-		}
-	}
-	fclose( fp );
-}*/
  
 int cooperation_parameter_return_index(double *cooperation_parameter){
 	int i;
 	
-	for(i=0;i<data_set_row;i++){
-		//printf("%f\n",cooperation_parameter[data_set_row]);
+	for(i=0;i<dataSetCooperativityStepSize;i++){
+		//printf("%f\n",cooperation_parameter[dataSetCooperativityStepSize]);
 		
-		if(cooperation_parameter[i] == conservativeness_parameter){
+		if(cooperation_parameter[i] == cooperativityParameter){
 			return i;
 		}
-		else if(cooperation_parameter[i] > conservativeness_parameter){
-			printf("data set‚É‘Î‚·‚é‹¤“¯«’l(conservativeness_parameter)‚ª³‚µ‚­‚È‚¢‚Ì‚Å‹ß‚¢’l%f‚ğ•Ô‚µ‚Ü‚µ‚½",cooperation_parameter[i]);
+		else if(cooperation_parameter[i] > cooperativityParameter){
+			printf("data setã«å¯¾ã™ã‚‹å…±åŒæ€§å€¤(cooperativityParameter)ãŒæ­£ã—ããªã„ã®ã§è¿‘ã„å€¤%fã‚’è¿”ã—ã¾ã—ãŸ",cooperation_parameter[i]);
 			
 			return i;
 		}
 	}
 	
-	printf("‹­§I—¹‚µ‚Ü‚·%d line)",__LINE__);
+	printf("å¼·åˆ¶çµ‚äº†ã—ã¾ã™%d line)",__LINE__);
 	exit(1);
 }
 
@@ -711,9 +645,9 @@ int network_edges_count(void){
 	int i,j;
 	int count=0;
 	
-	for(i=0;i<ag_num;i++){
-		for(j=i;j<ag_num;j++){
-			if(cd_nw[i][j] == 1){
+	for(i=0;i<agents;i++){
+		for(j=i;j<agents;j++){
+			if(evolvingNetwork[i][j] == 1){
 				count++;
 			}
 		}
@@ -722,14 +656,14 @@ int network_edges_count(void){
 	return count;
 }
 
-/* main•¶ */
+/* mainæ–‡ */
 int main(void){
 	FILE *fp,*fp2;
 	char filename[100];
 	char filename1[] = "cltfac_lst.txt";	//cultural factor list
 	char filename2[100];
-	char filename3[] = "max_size_network.gexf";
-	char filename4[] = "max_size_network(sociarium).txt";
+	char filename3[] = "maxSizeNetwork.gexf";
+	char filename4[] = "maxSizeNetwork(sociarium).txt";
 	char filename6[] = "cultural_network_animation(sociarium).txt";
 	int i,j,k;
 	int count;
@@ -739,15 +673,15 @@ int main(void){
 	double distance_dummy;
 	double cluster_dummy;
 	
-	//data setƒNƒ‰ƒX‚Ì“Ç‚İ‚İ
-	char filename5[] = "data_set20151112.csv";
+	//data setã‚¯ãƒ©ã‚¹ã®èª­ã¿è¾¼ã¿
+	char filename5[] = "data_set_not_torus20151112.csv";
 	char filename7[] = "data_set_torus20151214.csv";
 	int index_mark;
 	
-	/* ‹¤“¯«‚ğŠi”[‚·‚é”z—ñ */
+	/* å…±åŒæ€§ã‚’æ ¼ç´ã™ã‚‹é…åˆ— */
 	double cooperation_parameter[100];
 	
-	/* •½‹Ï‚ğŠi”[‚·‚é”z—ñ */
+	/* å¹³å‡ã‚’æ ¼ç´ã™ã‚‹é…åˆ— */
 	double island_number_av_array[100];
 	double agent_number_av_array[100];
 	double culture_number_av_array[100];
@@ -755,7 +689,7 @@ int main(void){
 	double shortest_path_av_array[100];
 	double bridge_number_av_array[100];
 	
-	/* •ªU‚ğŠi”[‚·‚é”z—ñ */
+	/* åˆ†æ•£ã‚’æ ¼ç´ã™ã‚‹é…åˆ— */
 	double island_number_variance_array[100];
 	double agent_number_variance_array[100];
 	double culture_number_variance_array[100];
@@ -763,7 +697,7 @@ int main(void){
 	double shortest_path_variance_array[100];
 	double bridge_number_variance_array[100];
 	
-	/* •W€•Î·‚ğŠi”[‚·‚é”z—ñ */
+	/* æ¨™æº–åå·®ã‚’æ ¼ç´ã™ã‚‹é…åˆ— */
 	double island_number_standard_deviation_array[100];
 	double agent_number_standard_deviation_array[100];
 	double culture_number_standard_deviation_array[100];
@@ -771,63 +705,63 @@ int main(void){
 	double shortest_path_standard_deviation_array[100];
 	double bridge_number_standard_deviation_array[100];
 	
-	if(read_data_set){
-		if(make_torus == 0){
-			read_data_set_func(filename5, cooperation_parameter, island_number_av_array, agent_number_av_array, culture_number_av_array, cluster_number_av_array, shortest_path_av_array, bridge_number_av_array,  island_number_variance_array, agent_number_variance_array, culture_number_variance_array, cluster_number_variance_array, shortest_path_variance_array, bridge_number_variance_array,  island_number_standard_deviation_array, agent_number_standard_deviation_array, culture_number_standard_deviation_array, cluster_number_standard_deviation_array, shortest_path_standard_deviation_array,  bridge_number_standard_deviation_array);
+	if(readDataSet){
+		if(latticeToTorus == 0){
+			writeDataSetOnMemory(filename5, cooperation_parameter, island_number_av_array, agent_number_av_array, culture_number_av_array, cluster_number_av_array, shortest_path_av_array, bridge_number_av_array,  island_number_variance_array, agent_number_variance_array, culture_number_variance_array, cluster_number_variance_array, shortest_path_variance_array, bridge_number_variance_array,  island_number_standard_deviation_array, agent_number_standard_deviation_array, culture_number_standard_deviation_array, cluster_number_standard_deviation_array, shortest_path_standard_deviation_array,  bridge_number_standard_deviation_array);
 			index_mark = cooperation_parameter_return_index(cooperation_parameter);
 		}
-		else if(make_torus == 1){
-			read_data_set_func(filename7, cooperation_parameter, island_number_av_array, agent_number_av_array, culture_number_av_array, cluster_number_av_array, shortest_path_av_array, bridge_number_av_array,  island_number_variance_array, agent_number_variance_array, culture_number_variance_array, cluster_number_variance_array, shortest_path_variance_array, bridge_number_variance_array,  island_number_standard_deviation_array, agent_number_standard_deviation_array, culture_number_standard_deviation_array, cluster_number_standard_deviation_array, shortest_path_standard_deviation_array,  bridge_number_standard_deviation_array);
+		else if(latticeToTorus == 1){
+			writeDataSetOnMemory(filename7, cooperation_parameter, island_number_av_array, agent_number_av_array, culture_number_av_array, cluster_number_av_array, shortest_path_av_array, bridge_number_av_array,  island_number_variance_array, agent_number_variance_array, culture_number_variance_array, cluster_number_variance_array, shortest_path_variance_array, bridge_number_variance_array,  island_number_standard_deviation_array, agent_number_standard_deviation_array, culture_number_standard_deviation_array, cluster_number_standard_deviation_array, shortest_path_standard_deviation_array,  bridge_number_standard_deviation_array);
 			index_mark = cooperation_parameter_return_index(cooperation_parameter);
 		}
 	}
 	
-	wt[0] = 0;	//‘‚«o‚·t‚Ì(1‰ñ–Ú)
-	wt[1] = 2500;	//‘‚«o‚·t‚Ì(2‰ñ–Ú)
-	wt[2] = 25000;	//‘‚«o‚·t‚Ì(3‰ñ–Ú)
-	wt[3] = 500000;	//‘‚«o‚·t‚Ì(4‰ñ–Ú)
+	writeOutEventTimes[0] = 0;	//æ›¸ãå‡ºã™tã®æ™‚åˆ»(1å›ç›®)
+	writeOutEventTimes[1] = 2500;	//æ›¸ãå‡ºã™tã®æ™‚åˆ»(2å›ç›®)
+	writeOutEventTimes[2] = 25000;	//æ›¸ãå‡ºã™tã®æ™‚åˆ»(3å›ç›®)
+	writeOutEventTimes[3] = 500000;	//æ›¸ãå‡ºã™tã®æ™‚åˆ»(4å›ç›®)
 	
 	init_genrand((unsigned)time(NULL));
 	
 	while(1){
-		t=0;	//t ‚Ì‰Šú‰»
-		lattice_func();
-		tr_func();
-		olap_func();
-		latcd_cpyfunc();	//ƒŒƒMƒ…ƒ‰[Šiq‚Ì—×Ús—ñ‚ğ•¶‰»—¬•z‚µ‚Ä•Ï‰»‚·‚é‚Ì‚Ég‚¤—×Ús—ñ‚É—v‘f‚ğƒRƒs[‚·‚é
+		t=0;	//t ã®åˆæœŸåŒ–
+		createLatticeGraph();
+		assignAgentToTrait();
+		createNetworkAddedSimilarity();
+		copyLatticeGraphToEvolvingNetwork();	//ãƒ¬ã‚®ãƒ¥ãƒ©ãƒ¼æ ¼å­ã®éš£æ¥è¡Œåˆ—ã‚’æ–‡åŒ–æµå¸ƒã—ã¦å¤‰åŒ–ã™ã‚‹ã®ã«ä½¿ã†éš£æ¥è¡Œåˆ—ã«è¦ç´ ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
 		
-		/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+		/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 		if ((fp2 = fopen(filename6, "wt")) == NULL) {
-			fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-			return exit(1);
+			fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+			exit(1);
 		}
 		
-		while(t<=tmax){
+		while(t<=eventMax){
 			//printf("%d event\n",t);
 			
-			for(k=0;k<wt_num;k++){
-				if(wt[k] == t){
-					for(i=0;i<ag_num;i++){	//‘‚«‚Ş‘O‚Éolap‚ğ³‚µ‚­ŒvZ‚·‚é
-						for(j=0;j<ag_num;j++){
-							if (cd_nw[i][j]==1){
-								olap[i][j] = KD_func(ag[i].f,ag[j].f);
+			for(k=0;k<writeOutFileNumber;k++){
+				if(writeOutEventTimes[k] == t){
+					for(i=0;i<agents;i++){	//æ›¸ãè¾¼ã‚€å‰ã«olapã‚’æ­£ã—ãè¨ˆç®—ã™ã‚‹
+						for(j=0;j<agents;j++){
+							if (evolvingNetwork[i][j]==1){
+								networkAddedSimilarity[i][j] = countCommonFeature(agent[i].feature,agent[j].feature);
 							}
 						}
 					}
 					
-					if(t==0){	//t=0(Šiqó)‚Ìƒlƒbƒgƒ[ƒN‚ğ‘‚«o‚·
-						edg=0;	//edg‚Ì‰Šú‰»
+					if(t==0){	//t=0(æ ¼å­çŠ¶)ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’æ›¸ãå‡ºã™
+						edg=0;	//edgã®åˆæœŸåŒ–
 						
-						/* gephi faile¶¬ */
-						sprintf(filename,"nw_%d.gexf",wt[k]); /*ƒtƒ@ƒCƒ‹–¼®Œ`*/
+						/* gephi faileç”Ÿæˆ */
+						sprintf(filename,"nw_%d.gexf",writeOutEventTimes[k]); /*ãƒ•ã‚¡ã‚¤ãƒ«åæ•´å½¢*/
 						
-						/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 						if ((fp = fopen(filename, "wt")) == NULL) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-							return exit(1);
+							fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+							exit(1);
 						}
 						
-						/* ‘‚«‚İ */
+						/* æ›¸ãè¾¼ã¿ */
 						fprintf(fp,"<gexf \n");
 						fprintf(fp,"xmlns:ns0=\"http://www.gexf.net/1.1draft/viz\" \n");
 						fprintf(fp,"version=\"1.1\" \n");
@@ -840,19 +774,19 @@ int main(void){
 						
 						fprintf(fp,"<nodes>\n");
 						
-						for(i=0;i<ag_num;i++){
+						for(i=0;i<agents;i++){
 							fprintf(fp,"<node id=\"%d\" label=\"agent%d\" >\n",i,i);
-							fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",ag[i].f[0]*rgb_conversion,ag[i].f[1]*rgb_conversion,ag[i].f[2]*rgb_conversion);
+							fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",agent[i].feature[0]*convertCultureToRgb,agent[i].feature[1]*convertCultureToRgb,agent[i].feature[2]*convertCultureToRgb);
 							fprintf(fp,"</node>\n");
 						}
 						
 						fprintf(fp,"</nodes>\n");
 						fprintf(fp,"<edges>\n");
 						
-						for(i=0;i<ag_num;i++){
-							for(j=i;j<ag_num;j++){
-								if(cd_nw[i][j]==1){
-									fprintf(fp,"<edge id=\"%d\" source=\"%d\" target=\"%d\" weight=\"%0.1f\"/>\n",edg,i,j,(double)olap[i][j]);
+						for(i=0;i<agents;i++){
+							for(j=i;j<agents;j++){
+								if(evolvingNetwork[i][j]==1){
+									fprintf(fp,"<edge id=\"%d\" source=\"%d\" target=\"%d\" weight=\"%0.1f\"/>\n",edg,i,j,(double)networkAddedSimilarity[i][j]);
 									edg = edg+1;
 								}
 							}
@@ -862,78 +796,63 @@ int main(void){
 						fprintf(fp,"</graph>\n");
 						fprintf(fp,"</gexf>\n");
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚Ì‘‚İ‚É¸”s‚µ‚Ü‚µ‚½.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
-						/* ƒtƒ@ƒCƒ‹ƒNƒ[ƒY */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚º */
 						fclose(fp);
 						/*----------------------------------------------------*/
 						
 						
-						/* sociarium file¶¬ */
-						sprintf(filename2,"nw_%d(sociarium).txt",wt[k]); /*ƒtƒ@ƒCƒ‹–¼®Œ`*/
+						/* sociarium fileç”Ÿæˆ */
+						sprintf(filename2,"nw_%d(sociarium).txt",writeOutEventTimes[k]); /*ãƒ•ã‚¡ã‚¤ãƒ«åæ•´å½¢*/
 						
-						/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 						if ((fp = fopen(filename2, "wt")) == NULL) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-							return exit(1);
+							fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+							exit(1);
 						}
 						
-						/* ‘‚«‚İ */
-						fprintf(fp,"# PajekŒ`®‚Ìƒf[ƒ^ \n");
-						fprintf(fp,"# QÆ: http://www.tp.umu.se/~rosvall/code.html \n");
+						/* æ›¸ãè¾¼ã¿ */
+						fprintf(fp,"# Pajekå½¢å¼ã®ãƒ‡ãƒ¼ã‚¿ \n");
+						fprintf(fp,"# å‚ç…§: http://www.tp.umu.se/~rosvall/code.html \n");
 						fprintf(fp,"\n");
 						fprintf(fp,"@module = graph_creation_read_pajek.dll \n");
 						fprintf(fp,"@title = The dissemination of culture \n");
 						fprintf(fp,"@nondirected \n");
 						fprintf(fp,"\n");
 						
-						fprintf(fp,"*Vertices %d \n",ag_num);
+						fprintf(fp,"*Vertices %d \n",agents);
 						
 						fprintf(fp,"<nodes>\n");
 						
-						for(i=0;i<ag_num;i++){
+						for(i=0;i<agents;i++){
 							fprintf(fp,"%d \"agent_%d\" \n",i,i);
-							//fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",ag[i].f[0]*rgb_conversion,ag[i].f[1]*rgb_conversion,ag[i].f[2]*rgb_conversion);
 						}
 						
 						fprintf(fp,"*Arcs \n");
 						
-						for(i=0;i<ag_num;i++){
-							for(j=i;j<ag_num;j++){
-								if(cd_nw[i][j]==1){
-									fprintf(fp,"%d %d %0.1f \n",i,j,(double)olap[i][j]);
+						for(i=0;i<agents;i++){
+							for(j=i;j<agents;j++){
+								if(evolvingNetwork[i][j]==1){
+									fprintf(fp,"%d %d %0.1f \n",i,j,(double)networkAddedSimilarity[i][j]);
 								}
 							}
 						}
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚Ì‘‚İ‚É¸”s‚µ‚Ü‚µ‚½.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
-						/* ƒtƒ@ƒCƒ‹ƒNƒ[ƒY */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚º */
 						fclose(fp);
 						/*----------------------------------------------------*/
 					}
-					else{	//t‚Ìƒlƒbƒgƒ[ƒN‚ğ‘‚«o‚·
-						edg=0;	//edg‚Ì‰Šú‰»
-						/* gephi fileì¬ */
-						sprintf(filename,"nw_%d.gexf",wt[k]); /*ƒtƒ@ƒCƒ‹–¼®Œ`*/
+					else{	//æ™‚åˆ»tã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’æ›¸ãå‡ºã™
+						edg=0;	//edgã®åˆæœŸåŒ–
+						/* gephi fileä½œæˆ */
+						sprintf(filename,"nw_%d.gexf",writeOutEventTimes[k]); /*ãƒ•ã‚¡ã‚¤ãƒ«åæ•´å½¢*/
 						
-						/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 						if ((fp = fopen(filename, "wt")) == NULL) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-							return exit(1);
+							fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+							exit(1);
 						}
 						
-						/* ‘‚«‚İ */
+						/* æ›¸ãè¾¼ã¿ */
 						fprintf(fp,"<gexf \n");
 						fprintf(fp,"xmlns:ns0=\"http://www.gexf.net/1.1draft/viz\" \n");
 						fprintf(fp,"version=\"1.1\" \n");
@@ -946,19 +865,19 @@ int main(void){
 						
 						fprintf(fp,"<nodes>\n");
 						
-						for(i=0;i<ag_num;i++){
+						for(i=0;i<agents;i++){
 							fprintf(fp,"<node id=\"%d\" label=\"agent%d\" >\n",i,i);
-							fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",ag[i].f[0]*rgb_conversion,ag[i].f[1]*rgb_conversion,ag[i].f[2]*rgb_conversion);
+							fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",agent[i].feature[0]*convertCultureToRgb,agent[i].feature[1]*convertCultureToRgb,agent[i].feature[2]*convertCultureToRgb);
 							fprintf(fp,"</node>\n");
 						}
 						
 						fprintf(fp,"</nodes>\n");
 						fprintf(fp,"<edges>\n");
 						
-						for(i=0;i<ag_num;i++){
-							for(j=i;j<ag_num;j++){
-								if(cd_nw[i][j]==1){
-									fprintf(fp,"<edge id=\"%d\" source=\"%d\" target=\"%d\" weight=\"%0.1f\"/>\n",edg,i,j,(double)olap[i][j]);
+						for(i=0;i<agents;i++){
+							for(j=i;j<agents;j++){
+								if(evolvingNetwork[i][j]==1){
+									fprintf(fp,"<edge id=\"%d\" source=\"%d\" target=\"%d\" weight=\"%0.1f\"/>\n",edg,i,j,(double)networkAddedSimilarity[i][j]);
 									edg = edg+1;
 								}
 							}
@@ -968,170 +887,155 @@ int main(void){
 						fprintf(fp,"</graph>\n");
 						fprintf(fp,"</gexf>\n");
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚Ì‘‚İ‚É¸”s‚µ‚Ü‚µ‚½.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
-						/* ƒtƒ@ƒCƒ‹ƒNƒ[ƒY */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚º */
 						fclose(fp);
 						/*----------------------------------------------------*/
 						
 						
-						/* sociarium file¶¬ */
-						sprintf(filename2,"nw_%d(sociarium).txt",wt[k]); /*ƒtƒ@ƒCƒ‹–¼®Œ`*/
+						/* sociarium fileç”Ÿæˆ */
+						sprintf(filename2,"nw_%d(sociarium).txt",writeOutEventTimes[k]); /*ãƒ•ã‚¡ã‚¤ãƒ«åæ•´å½¢*/
 						
-						/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 						if ((fp = fopen(filename2, "wt")) == NULL) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-							return exit(1);
+							fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+							exit(1);
 						}
 						
-						/* ‘‚«‚İ */
-						fprintf(fp,"# PajekŒ`®‚Ìƒf[ƒ^ \n");
-						fprintf(fp,"# QÆ: http://www.tp.umu.se/~rosvall/code.html \n");
+						/* æ›¸ãè¾¼ã¿ */
+						fprintf(fp,"# Pajekå½¢å¼ã®ãƒ‡ãƒ¼ã‚¿ \n");
+						fprintf(fp,"# å‚ç…§: http://www.tp.umu.se/~rosvall/code.html \n");
 						fprintf(fp,"\n");
 						fprintf(fp,"@module = graph_creation_read_pajek.dll \n");
 						fprintf(fp,"@title = The dissemination of culture \n");
 						fprintf(fp,"@nondirected \n");
 						fprintf(fp,"\n");
 						
-						fprintf(fp,"*Vertices %d \n",ag_num);
+						fprintf(fp,"*Vertices %d \n",agents);
 						
 						fprintf(fp,"<nodes>\n");
 						
-						for(i=0;i<ag_num;i++){
+						for(i=0;i<agents;i++){
 							fprintf(fp,"%d \"agent_%d\" \n",i,i);
-							//fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",ag[i].f[0]*rgb_conversion,ag[i].f[1]*rgb_conversion,ag[i].f[2]*rgb_conversion);
 						}
 						
 						fprintf(fp,"*Arcs \n");
 						
-						for(i=0;i<ag_num;i++){
-							for(j=i;j<ag_num;j++){
-								if(cd_nw[i][j]==1){
-									fprintf(fp,"%d %d %0.1f \n",i,j,(double)olap[i][j]);
+						for(i=0;i<agents;i++){
+							for(j=i;j<agents;j++){
+								if(evolvingNetwork[i][j]==1){
+									fprintf(fp,"%d %d %0.1f \n",i,j,(double)networkAddedSimilarity[i][j]);
 								}
 							}
 						}
 						
-						/*
-						if ( count < 0 ) {
-							fprintf(stderr, "ƒtƒ@ƒCƒ‹‚Ì‘‚İ‚É¸”s‚µ‚Ü‚µ‚½.\n");
-							fclose(fp);
-							return exit(1);
-						}
-						*/
-						/* ƒtƒ@ƒCƒ‹ƒNƒ[ƒY */
+						/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚º */
 						fclose(fp);
 						/*----------------------------------------------------*/
 					}
 				}
 			}
 			
-			/* sociarium file¶¬ */	
-			if(t%sociarium_ptch_width==0){
+			/* sociarium fileç”Ÿæˆ */	
+			if(t%sociariumAnimationStepSize==0){
 				if(t==0){
-					/* ‘‚«‚İ */
+					/* æ›¸ãè¾¼ã¿ */
 					fprintf(fp2,"@module = graph_creation_read_time_series_rect.dll \n");
-					fprintf(fp2,"@title = cultural drift %f\n",conservativeness_parameter);
+					fprintf(fp2,"@title = cultural drift %f\n",cooperativityParameter);
 					fprintf(fp2,"@delimiter =\t\n");
 					fprintf(fp2,"\n");
 					fprintf(fp2,"@time_format = Y.M.D # Y[ear], M[onth], D[ay], h[our], m[inute], s[econd] \n");
-					fprintf(fp2,"@interval  = %d # ƒlƒbƒgƒ[ƒN‚ğì¬‚·‚é‚ÌŠÔŠu\n",sociarium_ptch_width);
-					fprintf(fp2,"@characteristic_time = 1 # Še‚É‚Â‚¢‚Äexp(-dt/@characteristic_time)‚ğÏZ‚µC@thresholdˆÈ‰º‚ÌƒGƒbƒW‚ğƒ}ƒXƒLƒ“ƒO \n");
+					fprintf(fp2,"@interval  = %d # ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’ä½œæˆã™ã‚‹æ™‚åˆ»ã®é–“éš”\n",sociariumAnimationStepSize);
+					fprintf(fp2,"@characteristic_time = 1 # å„æ™‚åˆ»ã«ã¤ã„ã¦exp(-dt/@characteristic_time)ã‚’ç©ç®—ã—ï¼Œ@thresholdä»¥ä¸‹ã®ã‚¨ãƒƒã‚¸ã‚’ãƒã‚¹ã‚­ãƒ³ã‚° \n");
 					fprintf(fp2,"\n");
 					fprintf(fp2,"@threshold = 0\n");
 					fprintf(fp2,"@nondirected \n");
 					fprintf(fp2,"\n");
 					fprintf(fp2,"@node_texture = agent.png\n");
 					fprintf(fp2,"\n");
-					fprintf(fp2,"%d\tagent_%03d\tagent_%03d\t%d\n", 0, 0, 0, 0);	//‚±‚ê‚ª‚È‚¢‚Æ³‚µ‚¢•`‰æ‚ª‚Å‚«‚È‚¢
+					fprintf(fp2,"%d\tagent_%03d\tagent_%03d\t%d\n", 0, 0, 0, 0);	//ã“ã‚ŒãŒãªã„ã¨æ­£ã—ã„æç”»ãŒã§ããªã„
 					
-					for(i=0;i<ag_num;i++){
-						for(j=i;j<ag_num;j++){
-							if(cd_nw[i][j]){
-								fprintf(fp2,"%d\tagent_%03d\tagent_%03d\t%d\n", t+sociarium_ptch_width, i, j, cd_nw[i][j]);
+					for(i=0;i<agents;i++){
+						for(j=i;j<agents;j++){
+							if(evolvingNetwork[i][j]){
+								fprintf(fp2,"%d\tagent_%03d\tagent_%03d\t%d\n", t+sociariumAnimationStepSize, i, j, evolvingNetwork[i][j]);
 							}
 						}
 					}
 				}
 				else{
-					for(i=0;i<ag_num;i++){
-						for(j=i;j<ag_num;j++){
-							if(cd_nw[i][j]){
-								fprintf(fp2,"%d\tagent_%03d\tagent_%03d\t%d\n", t+sociarium_ptch_width, i, j, cd_nw[i][j]);
+					for(i=0;i<agents;i++){
+						for(j=i;j<agents;j++){
+							if(evolvingNetwork[i][j]){
+								fprintf(fp2,"%d\tagent_%03d\tagent_%03d\t%d\n", t+sociariumAnimationStepSize, i, j, evolvingNetwork[i][j]);
 							}
 						}
 					}
 				}
 			}			
 			
-			/***********ƒvƒƒOƒ‰ƒ€‚ÌŠj(orgnl_mdl)‚Æ‚È‚é‚à‚Ì***********
-			---------------------ˆÈ‰º‹ï‘Ì“I‚È“à—e-----------------------
-			1.Šˆ«‰»agent‚ªƒ‰ƒ“ƒ_ƒ€‚É‘I‘ğ‚³‚ê‚é
-			2.‚»‚Ìagent‚Ì—×Úagent‚ğƒ‰ƒ“ƒ_ƒ€‚É1‚Â‘I‘ğ‚·‚é
-			3.—Ş—«‚ğŒvZ‚·‚é
-			3.‘ŠŒİì—p‚ğs‚¤
-				-—×Úagent‚©‚çŠm—¦O(i,j)/F‚Å•¶‰»‚Ì‰e‹¿‚ğó‚¯‚é
-			4.overlap‚ª0‚È‚ç‚Îrule5‚É‘¥‚é
+			/***********ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®æ ¸(orgnl_mdl)ã¨ãªã‚‹ã‚‚ã®***********
+			---------------------ä»¥ä¸‹å…·ä½“çš„ãªå†…å®¹-----------------------
+			1.æ´»æ€§åŒ–agentãŒãƒ©ãƒ³ãƒ€ãƒ ã«é¸æŠã•ã‚Œã‚‹
+			2.ãã®agentã®éš£æ¥agentã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«1ã¤é¸æŠã™ã‚‹
+			3.é¡ä¼¼æ€§ã‚’è¨ˆç®—ã™ã‚‹
+			3.ç›¸äº’ä½œç”¨ã‚’è¡Œã†
+				-éš£æ¥agentã‹ã‚‰ç¢ºç‡O(i,j)/Fã§æ–‡åŒ–ã®å½±éŸ¿ã‚’å—ã‘ã‚‹
+			4.overlapãŒ0ãªã‚‰ã°rule5ã«å‰‡ã‚‹
 			***********************************************************/
 			orgnl_mdl();
 			
 			t = t+1;
 		}
-		/* ƒtƒ@ƒCƒ‹ƒNƒ[ƒY */
+		/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚º */
 		fclose(fp2);
 		
-		max_size_network_func();	//Å‘å‚Ì“‡‚Ì—×Ús—ñ‚ğ¶¬
+		createMaxSizeNetwork();	//æœ€å¤§ã®å³¶ã®éš£æ¥è¡Œåˆ—ã‚’ç”Ÿæˆ
 		
-		island_dummy = network_island_count();
-		distance_dummy = average_vertex_distance();
-		cluster_dummy = average_cluster_calculate_func();
+		island_dummy = countIslandNetwork();
+		distance_dummy = calculateAverageVertexDistance();
+		cluster_dummy = calculateAverageClusterCoefficient();
 		
-		if(read_data_set){
+		if(readDataSet){
 			if(simulation_count >= SimulationStop){
-				printf("ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚ğ‹­§I—¹‚µ‚Ü‚·(Error : %d line)\n",__LINE__);
+				printf("ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å¼·åˆ¶çµ‚äº†ã—ã¾ã™(Error : %d line)\n",__LINE__);
 				exit(1);
 			}			
-			//ŠY“–‚Ìparameter‚ğ’T‚·
+			//è©²å½“ã®parameterã‚’æ¢ã™
 			
-		/* ƒƒOƒtƒ@ƒCƒ‹¶¬ */
-		/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+			/* ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ç”Ÿæˆ */
+			/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 			if ((fp = fopen("simulation_log.csv", "a")) == NULL) {
-				fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
+				fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
 				exit(1);
 			}
 			
-			/* ‘‚«‚İ */
+			/* æ›¸ãè¾¼ã¿ */
 			fprintf(fp,"%d,%f,%f \n",island_dummy,distance_dummy,cluster_dummy);
 			
 			fclose(fp);
 			
-			if((island_number_av_array[index_mark] - sigma_option*island_number_standard_deviation_array[index_mark] < island_dummy)&&(island_dummy< island_number_av_array[index_mark] + sigma_option*island_number_standard_deviation_array[index_mark])&&(shortest_path_av_array[index_mark] - sigma_option*shortest_path_standard_deviation_array[index_mark] < distance_dummy)&&(distance_dummy < shortest_path_av_array[index_mark] + sigma_option*shortest_path_standard_deviation_array[index_mark])&&(cluster_number_av_array[index_mark] - sigma_option*cluster_number_standard_deviation_array[index_mark] < cluster_dummy)&&(cluster_dummy < cluster_number_av_array[index_mark] + sigma_option*cluster_number_standard_deviation_array[index_mark])){
+			if((island_number_av_array[index_mark] - sigmaConfficient*island_number_standard_deviation_array[index_mark] < island_dummy)&&(island_dummy< island_number_av_array[index_mark] + sigmaConfficient*island_number_standard_deviation_array[index_mark])&&(shortest_path_av_array[index_mark] - sigmaConfficient*shortest_path_standard_deviation_array[index_mark] < distance_dummy)&&(distance_dummy < shortest_path_av_array[index_mark] + sigmaConfficient*shortest_path_standard_deviation_array[index_mark])&&(cluster_number_av_array[index_mark] - sigmaConfficient*cluster_number_standard_deviation_array[index_mark] < cluster_dummy)&&(cluster_dummy < cluster_number_av_array[index_mark] + sigmaConfficient*cluster_number_standard_deviation_array[index_mark])){
 				break;
 			}
 			simulation_count++;
 			
-			printf("ÄƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚µ‚Ä‚¢‚Ü‚·c %d / %d\n",simulation_count,SimulationStop);
+			printf("å†ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã—ã¦ã„ã¾ã™â€¦ %d / %d\n",simulation_count,SimulationStop);
 		}
 		else{
 			break;
 		}
 	}
 	
-	/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+	/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 	edg = 0;
 	if ((fp = fopen(filename3, "w")) == NULL) {
-		fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-		return exit(1);
+		fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+		exit(1);
 	}
 	
-	/////////////////////////“‡‚Ìƒlƒbƒgƒ[ƒN‚Ì‚¤‚¿Å‚à‘å‚«‚Èƒlƒbƒgƒ[ƒN‚ğ•`‰æ‚·‚é/////////////////////////
+	/////////////////////////å³¶ã®ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®ã†ã¡æœ€ã‚‚å¤§ããªãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚’æç”»ã™ã‚‹/////////////////////////
 	//Gephi_file
-	/* ‘‚«‚İ */
+	/* æ›¸ãè¾¼ã¿ */
 	fprintf(fp,"<gexf \n");
 	fprintf(fp,"xmlns:ns0=\"http://www.gexf.net/1.1draft/viz\" \n");
 	fprintf(fp,"version=\"1.1\" \n");
@@ -1144,11 +1048,11 @@ int main(void){
 	
 	fprintf(fp,"<nodes>\n");
 	
-	for(i=0;i<ag_num;i++){
-		for(j=0;j<ag_num;j++){
-			if(max_size_network[i][j] == 1){
+	for(i=0;i<agents;i++){
+		for(j=0;j<agents;j++){
+			if(maxSizeNetwork[i][j] == 1){
 				fprintf(fp,"<node id=\"%d\" label=\"agent%d\" >\n",i,i);
-				fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",ag[i].f[0]*rgb_conversion,ag[i].f[1]*rgb_conversion,ag[i].f[2]*rgb_conversion);
+				fprintf(fp,"<ns0:color b=\"%d\" g=\"%d\" r=\"%d\" />\n",agent[i].feature[0]*convertCultureToRgb,agent[i].feature[1]*convertCultureToRgb,agent[i].feature[2]*convertCultureToRgb);
 				fprintf(fp,"</node>\n");
 				
 				break;
@@ -1159,10 +1063,10 @@ int main(void){
 	fprintf(fp,"</nodes>\n");
 	fprintf(fp,"<edges>\n");
 
-	for(i=0;i<ag_num;i++){
-		for(j=i;j<ag_num;j++){
-			if(max_size_network[i][j]==1){
-				fprintf(fp,"<edge id=\"%d\" source=\"%d\" target=\"%d\" weight=\"%0.1f\"/>\n",edg,i,j,(double)olap[i][j]);
+	for(i=0;i<agents;i++){
+		for(j=i;j<agents;j++){
+			if(maxSizeNetwork[i][j]==1){
+				fprintf(fp,"<edge id=\"%d\" source=\"%d\" target=\"%d\" weight=\"%0.1f\"/>\n",edg,i,j,(double)networkAddedSimilarity[i][j]);
 				edg = edg+1;
 			}
 		}
@@ -1172,66 +1076,63 @@ int main(void){
 	fprintf(fp,"</graph>\n");
 	fprintf(fp,"</gexf>\n");
 	
-	/* ƒtƒ@ƒCƒ‹ƒNƒ[ƒY */
+	/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚º */
 	fclose(fp);
 	
-	/* sociarium file¶¬ */	
-	/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+	/* sociarium fileç”Ÿæˆ */	
+	/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 	if ((fp = fopen(filename4, "wt")) == NULL) {
-		fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-		return exit(1);
+		fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+		exit(1);
 	}
 	
-	/* ‘‚«‚İ */
-	fprintf(fp,"# PajekŒ`®‚Ìƒf[ƒ^ \n");
-	fprintf(fp,"# QÆ: http://www.tp.umu.se/~rosvall/code.html \n");
+	/* æ›¸ãè¾¼ã¿ */
+	fprintf(fp,"# Pajekå½¢å¼ã®ãƒ‡ãƒ¼ã‚¿ \n");
+	fprintf(fp,"# å‚ç…§: http://www.tp.umu.se/~rosvall/code.html \n");
 	fprintf(fp,"\n");
 	fprintf(fp,"@module = graph_creation_read_pajek.dll \n");
 	fprintf(fp,"@title = The dissemination of culture (max size network)\n");
 	fprintf(fp,"@nondirected \n");
 	fprintf(fp,"\n");
 	
-	fprintf(fp,"*Vertices %d \n",node_list_of_network[1]);
+	fprintf(fp,"*Vertices %d \n",connectedGraphInformation[1]);
 	
 	fprintf(fp,"<nodes>\n");
 	
-	for(i=0;i<ag_num;i++){
+	for(i=0;i<agents;i++){
 		fprintf(fp,"%d \"agent_%d\" \n",i,i);
 	}
 	
 	fprintf(fp,"*Arcs \n");
 	
-	for(i=0;i<ag_num;i++){
-		for(j=i;j<ag_num;j++){
-			if(max_size_network[i][j]==1){
-				fprintf(fp,"%d %d %0.1f \n",i,j,(double)olap[i][j]);
+	for(i=0;i<agents;i++){
+		for(j=i;j<agents;j++){
+			if(maxSizeNetwork[i][j]==1){
+				fprintf(fp,"%d %d %0.1f \n",i,j,(double)networkAddedSimilarity[i][j]);
 			}
 		}
 	}
 	
-	/* ƒtƒ@ƒCƒ‹ƒNƒ[ƒY */
+	/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚º */
 	fclose(fp);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-		//•¶‰»‚Ì—¬•z‚ª¬Œ÷‚µ‚½‚Ì‚©•¶‰»ƒŠƒXƒg‚ğì¬‚µ‚ÄŠm”F‚·‚é
-	/* ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“ */
+		//æ–‡åŒ–ã®æµå¸ƒãŒæˆåŠŸã—ãŸã®ã‹æ–‡åŒ–ãƒªã‚¹ãƒˆã‚’ä½œæˆã—ã¦ç¢ºèªã™ã‚‹
+	/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³ */
 	if ((fp = fopen(filename1, "w")) == NULL) {
-		fprintf(stderr, "ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½D\n");
-		return exit(1);
+		fprintf(stderr, "ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸï¼\n");
+		exit(1);
 	}
 	
-	/* ‘‚«‚İ */
-	fprintf(fp,"“‡‚Ì” = %3d \n",island_dummy);
-	fprintf(fp,"Å‚à‘å‚«‚¢“‡‚Ìagent” = %3d \n",node_list_of_network[1]);
-	fprintf(fp,"•¶‰»‚Ì” = %3d \n",culture_count_function());
-	fprintf(fp,"•½‹Ï’¸“_ŠÔ‹——£ = %3f \n",distance_dummy);
-	fprintf(fp,"•½‹ÏƒNƒ‰ƒXƒ^[ŒW” = %3f \n",cluster_dummy);
-	fprintf(fp,"ƒuƒŠƒbƒW”(%%) = %f \n",a_rate_of_bridge_func()*100);
+	/* æ›¸ãè¾¼ã¿ */
+	fprintf(fp,"å³¶ã®æ•° = %3d \n",island_dummy);
+	fprintf(fp,"æœ€ã‚‚å¤§ãã„å³¶ã®agentæ•° = %3d \n",connectedGraphInformation[1]);
+	fprintf(fp,"æ–‡åŒ–ã®æ•° = %3d \n",countCulture());
+	fprintf(fp,"å¹³å‡é ‚ç‚¹é–“è·é›¢ = %3f \n",distance_dummy);
+	fprintf(fp,"å¹³å‡ã‚¯ãƒ©ã‚¹ã‚¿ãƒ¼ä¿‚æ•° = %3f \n",cluster_dummy);
+	fprintf(fp,"ãƒ–ãƒªãƒƒã‚¸æ•°(%%) = %f \n",countNetworkBridge()*100);
 	
 	fclose(fp);
-	
-	//printf("%d\n",node_list_of_network[0]);
-	//printf("%d\n",node_list_of_network[1]);
 	
 	return 0;
 }
