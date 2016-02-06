@@ -659,8 +659,6 @@ void island_variation_output(double *islandNumberList){
 	int eventNumber = 0;
 	double communality;
 	
-	/* 配列に平均化処理を行う */
-	
 	for (communality = 0 ; communality <= 1 ; communality += pitch_width) {
 		sprintf(dummyStringVariable, "%f,", communality);	//double型をstring型に変換
 		strcat(communalityListString, dummyStringVariable);
@@ -670,18 +668,19 @@ void island_variation_output(double *islandNumberList){
 		fprintf(stderr, "open file failed");
 		exit(1);
 	} else {
-		fprintf(countIslandListCsvFilePointer, communalityListString);
+		fprintf(countIslandListCsvFilePointer, communalityListString);	//列ラベルを書き込む
 		
 		for (islandNumberListIndex = 0 ; islandNumberListIndex < rowSize ; islandNumberListIndex++) {
 			memset(communalityListString, '\0' ,strlen(communalityListString));	//char型の変数を初期化
 			sprintf(dummyStringVariable, "%d, ", islandNumberListIndex*countIslandStepSize);
 			strcat(communalityListString, dummyStringVariable);
 			
-			for
-				sprintf(dummyStringVariable, "%d, ", islandNumberList[communality][islandNumberListIndex]);
+			for (communality = 0 ; communality <= 1 ; communality += pitch_width) {
+				sprintf(dummyStringVariable, "%f, ", (islandNumberList[communality*pitch_length][islandNumberListIndex])/desired_number);	//書き込む際に平均処理も行う
 				strcat(communalityListString, dummyStringVariable);
+			}
 			
-			fprintf(countIslandListCsvFilePointer, "%d, %d", eventNumber, islandNumberList[islandNumberListIndex]);
+			fprintf(countIslandListCsvFilePointer, communalityListString);
 			eventNumber += countIslandStepSize;
 		}
 	}
@@ -696,7 +695,7 @@ void count_island_input_list(double *islandNumberList, double  present_communali
 	}
 	
 	if (! (eventTime % countIslandStepSize)) {
-		islandNumberList[(int)(present_communality*pitch_length)][(eventTime / countIslandStepSize) - 1] += network_island_count();
+		islandNumberList[(int)(present_communality*pitch_length)][(eventTime / countIslandStepSize) - 1] += (doouble)network_island_count();
 	}
 }
 
