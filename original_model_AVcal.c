@@ -649,14 +649,13 @@ double a_rate_of_bridge_func(void){
 	return a_rate_of_bridge;
 }
 
-void island_variation_output(double *islandNumberList){
+void island_variation_output(double islandNumberList[pitch_length][event_length]){
 	FILE *countIslandListCsvFilePointer;
 	char countIslandListCsv[] = "count_island_list.csv";
 	char communalityListString[1000] = ",";
 	char dummyStringVariable[100];
 	int rowSize = tmax / countIslandStepSize;
 	int islandNumberListIndex;
-	int eventNumber = 0;
 	double communality;
 	
 	for (communality = 0 ; communality <= 1 ; communality += pitch_width) {
@@ -676,26 +675,25 @@ void island_variation_output(double *islandNumberList){
 			strcat(communalityListString, dummyStringVariable);
 			
 			for (communality = 0 ; communality <= 1 ; communality += pitch_width) {
-				sprintf(dummyStringVariable, "%f, ", (islandNumberList[communality*pitch_length][islandNumberListIndex])/desired_number);	//書き込む際に平均処理も行う
+				sprintf(dummyStringVariable, "%f, ", (islandNumberList[(int)(communality*pitch_length)][islandNumberListIndex])/desired_number);	//書き込む際に平均処理も行う
 				strcat(communalityListString, dummyStringVariable);
 			}
 			
 			fprintf(countIslandListCsvFilePointer, communalityListString);
-			eventNumber += countIslandStepSize;
 		}
 	}
 	
 	fclose(countIslandListCsvFilePointer);
 }
 
-void count_island_input_list(double *islandNumberList, double  present_communality, int eventTime){
+void count_island_input_list(double islandNumberList[pitch_length][event_length], double  present_communality, int eventTime){
 	if (! tmax / countIslandStepSize) {
 		printf("[ERROR] countIslandStepSizeがtmaxを超えて設定されています");
 		exit(1);
 	}
 	
 	if (! (eventTime % countIslandStepSize)) {
-		islandNumberList[(int)(present_communality*pitch_length)][(eventTime / countIslandStepSize) - 1] += (doouble)network_island_count();
+		islandNumberList[(int)(present_communality*pitch_length)][(eventTime / countIslandStepSize) - 1] += (double)(network_island_count());
 	}
 }
 
@@ -731,7 +729,9 @@ int main(void){
 	double bridge_number_array[desired_number];
 	
 	double island_number_list[pitch_length][event_length];
-	initialize_double_array(island_number_list, event_length);
+	for(k=0;k<pitch_length;k++){	//行列の縦
+		initialize_double_array(island_number_list[k], event_length);
+	}
 	
 	/* ファイルオープン */
 	if ((fp = fopen(filename, "w")) == NULL) {
@@ -843,6 +843,8 @@ int main(void){
 		else{
 			fprintf(fp,"%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f\n",i ,island_number_av ,agent_number_av ,culture_number_av, cluster_number_av, shortest_path_av, bridge_number_av, island_number_variance ,agent_number_variance , culture_number_variance, cluster_number_variance, shortest_path_variance, bridge_number_variance, sqrt(island_number_variance) ,sqrt(agent_number_variance), sqrt(culture_number_variance), sqrt(cluster_number_variance), sqrt(shortest_path_variance), sqrt(bridge_number_variance));
 		}
+		
+		island_variation_output(island_number_list);
 		
 		printf("%f \n",i);
 	}
