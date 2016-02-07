@@ -10,6 +10,7 @@
 #include <time.h>
 #include <math.h>
 #include <limits.h>
+#include <string.h>
 #include "MT.h"
 
 
@@ -21,13 +22,13 @@
 #define tmax 500000	//イベント数
 
 //pitch_width 0.1，desired_number 5で計算するとおよそ1分掛かる
-#define pitch_width 0.01	//保守性パラメータの増加速度(= 保守性0から1までの刻み幅)
+#define pitch_width 0.1	//保守性パラメータの増加速度(= 保守性0から1までの刻み幅)
 #define pitch_length (int)(1 / pitch_width)
-#define desired_number 1000	//1つの保守性パラメータあたりのプログラム実行回数
+#define desired_number 10	//1つの保守性パラメータあたりのプログラム実行回数
 
 #define make_torus 1	//格子モデルをトーラスにする場合は1にする(しない場合は0)
 
-#define countIslandStepSize 1000
+#define countIslandStepSize 10000
 #define event_length tmax/countIslandStepSize
 
 /* 構造体 */
@@ -40,7 +41,7 @@ typedef struct{
 /* 外部変数 */
 int lattice_mdl[ag_num][ag_num];	//格子モデルの隣接行列，agはagentのこと
 int cd_nw[ag_num][ag_num];	//cultural driftするネットワークの隣接行列
-int olap[ag_num][ag_num];	;//overlap
+int olap[ag_num][ag_num];	//overlap
 agent ag[ag_num];
 int node_through_list[ag_num];	//dfsで通過したノードは該当する列に1を入れる
 int node_through_count;	//dfsで通過したノードをカウントする(dfsは再帰呼び出ししているのでこの変数は外部変数にしなきゃダメ)
@@ -658,8 +659,8 @@ void island_variation_output(double islandNumberList[pitch_length][event_length]
 	int islandNumberListIndex;
 	double communality;
 	
-	for (communality = 0 ; communality <= 1 ; communality += pitch_width) {
-		sprintf(dummyStringVariable, "%f,", communality);	//double型をstring型に変換
+	for (communality = 0 ; communality < 1 - pitch_width ; communality += pitch_width) {
+		sprintf(dummyStringVariable, "%f, ", communality);	//double型をstring型に変換
 		strcat(communalityListString, dummyStringVariable);
 	}
 	
@@ -667,18 +668,19 @@ void island_variation_output(double islandNumberList[pitch_length][event_length]
 		fprintf(stderr, "open file failed");
 		exit(1);
 	} else {
+		strcat(communalityListString, "\n");
 		fprintf(countIslandListCsvFilePointer, communalityListString);	//列ラベルを書き込む
 		
 		for (islandNumberListIndex = 0 ; islandNumberListIndex < rowSize ; islandNumberListIndex++) {
 			memset(communalityListString, '\0' ,strlen(communalityListString));	//char型の変数を初期化
-			sprintf(dummyStringVariable, "%d, ", islandNumberListIndex*countIslandStepSize);
+			sprintf(dummyStringVariable, "%d, ", (islandNumberListIndex+1)*countIslandStepSize);
 			strcat(communalityListString, dummyStringVariable);
 			
-			for (communality = 0 ; communality <= 1 ; communality += pitch_width) {
+			for (communality = 0 ; communality < 1 - pitch_width ; communality += pitch_width) {
 				sprintf(dummyStringVariable, "%f, ", (islandNumberList[(int)(communality*pitch_length)][islandNumberListIndex])/desired_number);	//書き込む際に平均処理も行う
 				strcat(communalityListString, dummyStringVariable);
 			}
-			
+			strcat(communalityListString, "\n");
 			fprintf(countIslandListCsvFilePointer, communalityListString);
 		}
 	}
@@ -687,13 +689,18 @@ void island_variation_output(double islandNumberList[pitch_length][event_length]
 }
 
 void count_island_input_list(double islandNumberList[pitch_length][event_length], double  present_communality, int eventTime){
+	int islandNumberListIndexRow = (int)(present_communality*pitch_length+0.000001);	//キャストした値が変化することがあったので丸めを利用して回避
+	
 	if (! tmax / countIslandStepSize) {
-		printf("[ERROR] countIslandStepSizeがtmaxを超えて設定されています");
+		printf("[ERROR] countIslandStepSizeがtmaxを超えて設定されています\n");
 		exit(1);
 	}
 	
-	if (! (eventTime % countIslandStepSize)) {
-		islandNumberList[(int)(present_communality*pitch_length)][(eventTime / countIslandStepSize) - 1] += (double)(network_island_count());
+	if (! (eventTime % countIslandStepSize) && eventTime != 0) {
+		//printf("present_communality*pitch_length = %f -floor-> %f -> %d\n", islandNumberListIndexRow, floor(islandNumberListIndexRow), (int)islandNumberListIndexRow);
+		//printf("eventTime ％ countIslandStepSize = %d\n", eventTime % countIslandStepSize);
+		islandNumberList[islandNumberListIndexRow][(eventTime / countIslandStepSize) - 1] += (double)(network_island_count());
+		//printf("islandNumberList[%d][%d]  = %f\n", islandNumberListIndexRow, (eventTime / countIslandStepSize) - 1 , islandNumberList[islandNumberListIndexRow][(eventTime / countIslandStepSize) - 1] );
 	}
 }
 
@@ -741,7 +748,7 @@ int main(void){
 	
 	init_genrand((unsigned)time(NULL));
 	
-	for(i=0;i<=1;i=i+pitch_width){
+	for(i=0;i<=1.0-pitch_width;i+=pitch_width){
 		//忘れずに初期化すること
 		island_number_av = 0;
 		agent_number_av = 0;
@@ -844,12 +851,12 @@ int main(void){
 			fprintf(fp,"%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f ,%5f\n",i ,island_number_av ,agent_number_av ,culture_number_av, cluster_number_av, shortest_path_av, bridge_number_av, island_number_variance ,agent_number_variance , culture_number_variance, cluster_number_variance, shortest_path_variance, bridge_number_variance, sqrt(island_number_variance) ,sqrt(agent_number_variance), sqrt(culture_number_variance), sqrt(cluster_number_variance), sqrt(shortest_path_variance), sqrt(bridge_number_variance));
 		}
 		
-		island_variation_output(island_number_list);
-		
 		printf("%f \n",i);
 	}
 	
 	fclose(fp);
+	
+	island_variation_output(island_number_list);
 	
 	return 0;
 }
