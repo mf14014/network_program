@@ -22,13 +22,13 @@
 #define tmax 500000	//イベント数
 
 //pitch_width 0.1，desired_number 5で計算するとおよそ1分掛かる
-#define pitch_width 0.1	//保守性パラメータの増加速度(= 保守性0から1までの刻み幅)
+#define pitch_width 0.01	//保守性パラメータの増加速度(= 保守性0から1までの刻み幅)
 #define pitch_length (int)(1 / pitch_width)
-#define desired_number 10	//1つの保守性パラメータあたりのプログラム実行回数
+#define desired_number 1000	//1つの保守性パラメータあたりのプログラム実行回数
 
-#define make_torus 1	//格子モデルをトーラスにする場合は1にする(しない場合は0)
+#define make_torus 0	//格子モデルをトーラスにする場合は1にする(しない場合は0)
 
-#define countIslandStepSize 10000
+#define countIslandStepSize 10000	//一応1000もやる
 #define event_length tmax/countIslandStepSize
 
 /* 構造体 */
