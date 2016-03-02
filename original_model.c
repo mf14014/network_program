@@ -726,7 +726,7 @@ int main(void){
 		/* ファイルオープン */
 		if ((fp2 = fopen(filename6, "wt")) == NULL) {
 			fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-			return exit(1);
+			exit(1);
 		}
 		
 		while(t<=tmax){
@@ -749,7 +749,7 @@ int main(void){
 						/* ファイルオープン */
 						if ((fp = fopen(filename, "wt")) == NULL) {
 							fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-							return exit(1);
+							exit(1);
 						}
 						
 						/* 書き込み */
@@ -798,7 +798,7 @@ int main(void){
 						/* ファイルオープン */
 						if ((fp = fopen(filename2, "wt")) == NULL) {
 							fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-							return exit(1);
+							exit(1);
 						}
 						
 						/* 書き込み */
@@ -840,7 +840,7 @@ int main(void){
 						/* ファイルオープン */
 						if ((fp = fopen(filename, "wt")) == NULL) {
 							fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-							return exit(1);
+							exit(1);
 						}
 						
 						/* 書き込み */
@@ -889,7 +889,7 @@ int main(void){
 						/* ファイルオープン */
 						if ((fp = fopen(filename2, "wt")) == NULL) {
 							fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-							return exit(1);
+							exit(1);
 						}
 						
 						/* 書き込み */
@@ -1022,7 +1022,7 @@ int main(void){
 	edg = 0;
 	if ((fp = fopen(filename3, "w")) == NULL) {
 		fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-		return exit(1);
+		exit(1);
 	}
 	
 	/////////////////////////島のネットワークのうち最も大きなネットワークを描画する/////////////////////////
@@ -1075,7 +1075,7 @@ int main(void){
 	/* ファイルオープン */
 	if ((fp = fopen(filename4, "wt")) == NULL) {
 		fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-		return exit(1);
+		exit(1);
 	}
 	
 	/* 書き込み */
@@ -1113,7 +1113,7 @@ int main(void){
 	/* ファイルオープン */
 	if ((fp = fopen(filename1, "w")) == NULL) {
 		fprintf(stderr, "ファイルのオープンに失敗しました．\n");
-		return exit(1);
+		exit(1);
 	}
 	
 	/* 書き込み */

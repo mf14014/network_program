@@ -4,6 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include <limits.h>
+#include <string.h>
 #include "MT.h"
 
 
@@ -15,10 +16,14 @@
 #define tmax 500000	//イベント数
 
 //pitch_width 0.1，desired_number 5で計算するとおよそ1分掛かる
-#define pitch_width 0.01	//保守性パラメータの増加速度(= 保守性0から1までの刻み幅)
-#define desired_number 1000	//1つの保守性パラメータあたりのプログラム実行回数
+#define pitch_width 0.3	//保守性パラメータの増加速度(= 保守性0から1までの刻み幅)
+#define pitch_length (int)(1 / pitch_width) + 1	//共同性0も含めるので"+1"
+#define desired_number 3	//1つの保守性パラメータあたりのプログラム実行回数
 
-#define make_torus 1	//格子モデルをトーラスにする場合は1にする(しない場合は0)
+#define make_torus 0	//格子モデルをトーラスにする場合は1にする(しない場合は0)
+
+#define countIslandStepSize 100000
+#define event_length tmax/countIslandStepSize
 
 /* 構造体 */
 typedef struct{
@@ -30,7 +35,7 @@ typedef struct{
 /* 外部変数 */
 int lattice_mdl[ag_num][ag_num];	//格子モデルの隣接行列，agはagentのこと
 int cd_nw[ag_num][ag_num];	//cultural driftするネットワークの隣接行列
-int olap[ag_num][ag_num];	;//overlap
+int olap[ag_num][ag_num];	//overlap
 agent ag[ag_num];
 int node_through_list[ag_num];	//dfsで通過したノードは該当する列に1を入れる
 int node_through_count;	//dfsで通過したノードをカウントする(dfsは再帰呼び出ししているのでこの変数は外部変数にしなきゃダメ)
@@ -46,7 +51,7 @@ void tr_func(void);
 int KD_func(int *p, int*q);
 void olap_func(void);
 void latcd_cpyfunc(void);
-void initialization_1(int *p,int x);
+void initialize_int_array(int *p,int x);
 void dfs1(int v);
 void dfs2(int v);
 int network_island_count(void);
@@ -60,7 +65,7 @@ int vertex_list_check(int *p, int array_length);	//配列の中身がすべて1�
 int dijkstra(int node_u,int node_v,int *ver,int *dis,int length);	//ダイクストラ法の本計算プログラム
 int shortest_path_func(int node_u, int node_v);	//最短頂点間距離を計算する関数
 double average_vertex_distance(void);	//平均頂点間距離を求める関数
-double a_rate_of_bridge_func(void);	//ブリッジなリンクの数を数える関数
+int a_rate_of_bridge_func(void);	//ブリッジなリンクの数を数える関数
 
 
 /* 外部関数 */
@@ -165,7 +170,18 @@ void latcd_cpyfunc(void){	//レギュラー格子の隣接行列を文化流布�
 }
 
 //与えられた配列の中身を全て0にする
-void initialization_1(int *p,int x){	//pは1次元配列のポインタ，xは配列の大きさ(2次元にも応用可 -> *pに配列の行を渡せば良い)
+void initialize_int_array(int *p,int x){	//pは1次元配列のポインタ，xは配列の大きさ(2次元にも応用可 -> *pに配列の行を渡せば良い)
+	int i;
+	
+	for(i=0;i<x;i++){
+		*p = 0;
+		
+		p++;
+	}
+}
+
+//与えられた配列の中身を全て0にする
+void initialize_double_array(double *p,int x){	//pは1次元配列のポインタ，xは配列の大きさ(2次元にも応用可 -> *pに配列の行を渡せば良い)
 	int i;
 	
 	for(i=0;i<x;i++){
@@ -212,7 +228,9 @@ int network_island_count(void){	//島の数を数える関数
 	int af_node_through_list_number = 0;
 	int bf_node_through_list_number = 0;
 	
-	initialization_1(node_through_list,ag_num);	//初期化
+	//初期化
+	initialize_int_array(node_through_list,ag_num);
+	initialize_int_array(node_list_of_network,2);
 	
 	for(i=0;i<ag_num;i++){
 		if(node_through_list[i] == 0){
@@ -352,7 +370,8 @@ void max_size_network_func(void){
 	int count = 0;
 	int i;
 	
-	initialization_1(node_through_list,ag_num);	//初期化
+	//初期化
+	initialize_int_array(node_through_list,ag_num);
 	
 	for(i=0;i<ag_num;i++){
 		if(node_through_list[i] == 0){
@@ -547,7 +566,7 @@ int dijkstra(int node_u,int node_v,int *ver,int *dis,int length){	//ダイクス
 			}
 		}
 		//初期化
-		initialization_1(queue,ag_num);
+		initialize_int_array(queue,ag_num);
 		head = 0;
 		tail = 0;
 	}
@@ -607,7 +626,7 @@ double average_vertex_distance(void){	//平均頂点間距離を計算するプ�
 	return av_dis;
 }
 
-double a_rate_of_bridge_func(void){
+int a_rate_of_bridge_func(void){
 	int a_rate_of_bridge=0;
 	int all_link_count=0;
 	int i,j;
@@ -626,6 +645,60 @@ double a_rate_of_bridge_func(void){
 	//printf("link -> %d\n",all_link_count);
 	
 	return a_rate_of_bridge;
+}
+
+void island_variation_output(double islandNumberList[pitch_length][event_length]){
+	FILE *countIslandListCsvFilePointer;
+	char countIslandListCsv[] = "count_island_list.csv";
+	char communalityListString[1000] = ",";
+	char dummyStringVariable[100];
+	int rowSize = tmax / countIslandStepSize;
+	int islandNumberListIndex;
+	double communality;
+	
+	for (communality = 0 ; communality < 1 ; communality += pitch_width) {
+		sprintf(dummyStringVariable, "%f, ", communality);	//double型をstring型に変換
+		strcat(communalityListString, dummyStringVariable);
+	}
+	
+	if ((countIslandListCsvFilePointer = fopen(countIslandListCsv, "w")) == NULL) {
+		fprintf(stderr, "open file failed");
+		exit(1);
+	} else {
+		strcat(communalityListString, "\n");
+		fprintf(countIslandListCsvFilePointer, communalityListString);	//列ラベルを書き込む
+		
+		for (islandNumberListIndex = 0 ; islandNumberListIndex < rowSize ; islandNumberListIndex++) {
+			memset(communalityListString, '\0' ,strlen(communalityListString));	//char型の変数を初期化
+			sprintf(dummyStringVariable, "%d, ", (islandNumberListIndex+1)*countIslandStepSize);
+			strcat(communalityListString, dummyStringVariable);
+			
+			for (communality = 0 ; communality < 1 ; communality += pitch_width) {
+				sprintf(dummyStringVariable, "%f, ", (islandNumberList[(int)(communality/pitch_width)][islandNumberListIndex])/desired_number);	//書き込む際に平均処理も行う
+				strcat(communalityListString, dummyStringVariable);
+			}
+			strcat(communalityListString, "\n");
+			fprintf(countIslandListCsvFilePointer, communalityListString);
+		}
+	}
+	
+	fclose(countIslandListCsvFilePointer);
+}
+
+void count_island_input_list(double islandNumberList[pitch_length][event_length], double  present_communality, int eventTime){
+	int islandNumberListIndexRow = (int)(present_communality/pitch_width+0.000001);	//キャストした値が変化することがあったので丸めを利用して回避
+	
+	if (! tmax / countIslandStepSize) {
+		printf("[ERROR] countIslandStepSizeがtmaxを超えて設定されています\n");
+		exit(1);
+	}
+	
+	if (! (eventTime % countIslandStepSize) && eventTime != 0) {
+		//printf("present_communality*pitch_length = %f -floor-> %f -> %d\n", islandNumberListIndexRow, floor(islandNumberListIndexRow), (int)islandNumberListIndexRow);
+		//printf("eventTime ％ countIslandStepSize = %d\n", eventTime % countIslandStepSize);
+		islandNumberList[islandNumberListIndexRow][(eventTime / countIslandStepSize) - 1] += (double)(network_island_count());
+		//printf("islandNumberList[%d][%d]  = %f\n", islandNumberListIndexRow, (eventTime / countIslandStepSize) - 1 , islandNumberList[islandNumberListIndexRow][(eventTime / countIslandStepSize) - 1] );
+	}
 }
 
 /* main文 */
@@ -659,6 +732,12 @@ int main(void){
 	double shortest_path_array[desired_number];
 	double bridge_number_array[desired_number];
 	
+	double island_number_list[pitch_length][event_length];
+	for(k=0;k<pitch_length;k++){	//行列の縦
+		initialize_double_array(island_number_list[k], event_length);
+	}
+	//printf("pitch_length : %d, event_length : %d\n", pitch_length, event_length);
+	
 	/* ファイルオープン */
 	if ((fp = fopen(filename, "w")) == NULL) {
 		fprintf(stderr, "ファイルのオープンに失敗しました．\n");
@@ -667,7 +746,7 @@ int main(void){
 	
 	init_genrand((unsigned)time(NULL));
 	
-	for(i=0;i<=1;i=i+pitch_width){
+	for(i=0;i<=1.0;i+=pitch_width){
 		//忘れずに初期化すること
 		island_number_av = 0;
 		agent_number_av = 0;
@@ -679,38 +758,25 @@ int main(void){
 		for(j=0;j<desired_number;j++){
 			//外部変数の初期化
 			for(k=0;k<ag_num;k++){	//行列の縦
-				initialization_1(lattice_mdl[k],ag_num);	//行列の横
+				initialize_int_array(lattice_mdl[k],ag_num);	//行列の横
 			}
 			
 			for(k=0;k<ag_num;k++){	//行列の縦
-				initialization_1(cd_nw[k],ag_num);	//行列の横
+				initialize_int_array(cd_nw[k],ag_num);	//行列の横
 			}
 			
-			initialization_1(node_through_list,ag_num);
+			initialize_int_array(node_through_list,ag_num);
 			
 			node_through_count = 0;
 			
-			initialization_1(node_list_of_network,2);
-			
-			for(k=0;k<ag_num;k++){	//行列の縦
-				initialization_1(max_size_network[k],ag_num);	//行列の横
-			}
-			
-			
+			initialize_int_array(node_list_of_network,2);
 			
 			lattice_func();
-			
 			tr_func();
-			
 			olap_func();
-			
 			latcd_cpyfunc();	//レギュラー格子の隣接行列を文化流布して変化するのに使う隣接行列に要素をコピーする
 			
-			
-			
 			conservativeness_parameter = i;
-			
-			
 			
 			for(t=0;t<=tmax;t++){
 				//printf("%d event\n",t);
@@ -726,7 +792,7 @@ int main(void){
 				***********************************************************/
 				
 				orgnl_mdl();
-				
+				count_island_input_list(island_number_list, i, t);
 			}
 			
 			//printf("%d\n",network_island_count());
@@ -738,7 +804,7 @@ int main(void){
 			culture_number_array[j] = culture_count_function();
 			cluster_number_array[j] = average_cluster_calculate_func();
 			shortest_path_array[j] = average_vertex_distance();
-			bridge_number_array[j] = a_rate_of_bridge_func();
+			bridge_number_array[j] = (double)a_rate_of_bridge_func();
 			
 			/*printf("island_number_array[%d]->%d\n",j,island_number_array[j]);
 			printf("agent_number_array[%d]->%d\n",j,agent_number_array[j]);
@@ -783,6 +849,8 @@ int main(void){
 	}
 	
 	fclose(fp);
+	
+	island_variation_output(island_number_list);
 	
 	return 0;
 }
