@@ -1,0 +1,9 @@
+# gcc file
+*.o
+*.out
+
+.vagrant/
+.git/
+
+.DS_Store
+.bash_history
