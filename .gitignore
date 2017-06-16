@@ -6,4 +6,11 @@
 .git/
 
 .DS_Store
+.idea/
 .bash_history
+
+src/*(sociarium).txt
+src/*.gexf
+src/data_set_not_torus*.csv
+src/data_set_torus*.csv
+src/simulation_log.csv
